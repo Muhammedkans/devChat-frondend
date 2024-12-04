@@ -28,8 +28,8 @@ const Login = () => {
     navigate("/feed");
   }
   catch(err){
-   console.error(err);
-   setError(err?.response?.data);
+   console.error(err.status);
+   
   }
   }
 
