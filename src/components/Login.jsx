@@ -13,6 +13,8 @@ const Login = () => {
   const [emailId, setEmailId] = useState("mondric@gmail.com");
  
   const [password , setPassword] = useState("Mondric@123");
+
+  const [error, setError] = useState("");
   
   const dispatch =useDispatch();
 
@@ -23,13 +25,13 @@ const Login = () => {
       withCredentials:true
     });
 
-    console.log(res.data);
+    
     dispatch(addUser(res.data));
     navigate("/feed");
   }
   catch(err){
-   console.error(err.status);
    
+   setError(err?.response?.data);
   }
   }
 
@@ -63,9 +65,9 @@ const Login = () => {
   <input type="text" value={password} onChange={(e)=> setPassword(e.target.value)} className="input input-bordered w-full max-w-xs text-black" />
   
 </label>
-
+          <p className='text-red-700'>{error}</p>
         <div className="card-actions justify-center">
-          <button className="btn btn-primary " onClick={handleLogin}>Log</button>
+          <button className="btn btn-primary " onClick={handleLogin}>LogIn</button>
         </div>
       </div>
     </div>

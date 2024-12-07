@@ -6,7 +6,9 @@ import Profile from "./components/Profile.jsx"
 import { Provider } from "react-redux"
 import Feed from "./components/Feed.jsx";
 import { store } from "./utils/appStore.js"
-import Error from "./components/Error.jsx"
+
+import Connection from "./components/Connection.jsx"
+import Requests from "./components/Requests.jsx"
 function App() {
 
   return (
@@ -15,10 +17,12 @@ function App() {
     <BrowserRouter basename="/"> 
     <Routes>
       <Route path="/" element={<Body/>} >
-      <Route path="/error"element={<Error/>} />
+     
       <Route path="/feed" element={<Feed/>}/>
       <Route path="/login" element={<Login/>} />
       <Route path="/profile" element={<Profile/>} />
+      <Route  path="/connection"element={<Connection/>}/>
+      <Route  path="/requests"element={<Requests/>}/>
    </Route>
    
   </Routes>
@@ -33,4 +37,4 @@ function App() {
   )
 }
 
-export default App
+export default App;
