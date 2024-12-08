@@ -2,7 +2,7 @@ import {  useState } from "react";
 
 import axios from "axios";
 import { BASE_URL } from "../utils/constant";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch,  } from "react-redux";
 import { addUser } from "../utils/userSlice";
 import UserData from "./UserData";
 
@@ -14,12 +14,14 @@ console.log(user);
   const [firstName, setFirstName] = useState(user.firstName);
   const [lastName, setLastName] = useState(user.lastName);
   const [photoUrl, setPhotoUrl] = useState(user.photoUrl);
-  const [age, setAge] = useState(user.age || "");
-  const [gender, setGender] = useState(user.gender || "");
+  const [age, setAge] = useState(user.age);
+  const [gender, setGender] = useState(user.gender);
   const [about, setAbout] = useState(user.about || "");
   const [error, setError] = useState("");
   const dispatch = useDispatch();
   const [showToast, setShowToast] = useState(false);
+
+console.log(age,gender);
 
   const saveProfile = async () => {
     
@@ -27,7 +29,7 @@ console.log(user);
     setError("");
     try {
       const res = await axios.patch(
-        BASE_URL + "/profile/edit",
+        BASE_URL+"/profile/edit",
         {
           firstName,
           lastName,
@@ -38,14 +40,14 @@ console.log(user);
         },
         { withCredentials: true }
       );
-      dispatch(addUser(res));
-      console.log(res)
+      dispatch(addUser(res?.data?.data));
+      console.log(res);
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
       }, 3000);
     } catch (err) {
-      setError(err.response.data);
+      setError(err.response.data.message);
       
     }
   };
