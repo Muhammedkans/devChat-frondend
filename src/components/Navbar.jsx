@@ -29,7 +29,7 @@ const Navbar = () => {
     <h1 className="text-3xl text-center font-bold bg-red-500 text-white px-5 py-5"> hahahhhahahh </h1>
     <div className="navbar bg-base-info">
     <div className="flex-1">
-    <Link to="/" className="btn btn-ghost text-xl">daisyUI </Link>
+    <Link to="/feed" className="btn btn-ghost text-xl">devChat </Link>
   </div>
   {user && (<div className="flex-none gap-2">
      <p> Welcome , {user.firstName}</p>

@@ -9,13 +9,13 @@ const Requests = () => {
   const dispatch = useDispatch();
 
   const requestConnection = useSelector((store)=> store.requests)
-
+   console.log(requestConnection)
   const revieRequest = async(status, _id)=>{
      try{
       const res = await axios.post(BASE_URL+  "/request/review/" +  status + "/" + _id,{},{withCredentials:true});
 
       dispatch(removeRequests(_id));
-
+      console.log(requestConnection);
      }catch(err){
 
      }
@@ -24,8 +24,8 @@ const Requests = () => {
   const requestFetch = async()=>{
     try{
       const res = await axios.get(BASE_URL + "/request/review/recieved",{withCredentials:true});
-    dispatch(addRequests(res?.data?.data));
-    console.log(res);
+    dispatch(addRequests(res?.data.data))
+    console.log(res.data.data);
     }catch(err){
       console.log(err.response.data)
     }
@@ -50,7 +50,7 @@ const Requests = () => {
          
         
 
-        {requestConnection.map((requests)=> {
+        {requestConnection.filter((request)=> request.fromUserId && request._id ).map((requests)=> {
           const {firstName,lastName,_id, photoUrl,age,gender,about} = requests.fromUserId;
          return  (<div key={_id}className='flex justify-between items-center text-black m-4 p-4 bg-base-300 flex w-1/2 mx-auto '>
                   <div className=''> <img   className='w-20 h-20 rounded-full '  src={photoUrl}/> 
