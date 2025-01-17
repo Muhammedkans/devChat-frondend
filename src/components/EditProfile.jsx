@@ -1,7 +1,7 @@
 import {  useState } from "react";
 
 import axios from "axios";
-import { BASE_URL } from "../utils/constant";
+import { API_URL } from "../utils/constant";
 import { useDispatch,  } from "react-redux";
 import { addUser } from "../utils/userSlice";
 import UserData from "./UserData";
@@ -29,7 +29,7 @@ console.log(age,gender);
     setError("");
     try {
       const res = await axios.patch(
-        BASE_URL+"/profile/edit",
+        API_URL+"/profile/edit",
         {
           firstName,
           lastName,

@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
+ 
+const API_URL = import.meta.env.VITE_API_URL;
 
 import Body from "./components/Body.jsx"
 import Login from "./components/Login.jsx"

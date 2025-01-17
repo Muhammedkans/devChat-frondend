@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React from 'react'
-import { BASE_URL } from '../utils/constant';
+import { API_URL } from '../utils/constant';
 import { useDispatch } from 'react-redux';
 import { removeFeed } from '../utils/feedSlice';
 
@@ -11,7 +11,7 @@ const UserData = ({user}) => {
   const handleSendRequest = async (status, userId)=>{
     
     try{
-      const res = await axios.post(BASE_URL+ `/request/send/${status}/${userId}`,{},{withCredentials:true});
+      const res = await axios.post(API_URL+ `/request/send/${status}/${userId}`,{},{withCredentials:true});
 
       dispatch(removeFeed(userId));
     }

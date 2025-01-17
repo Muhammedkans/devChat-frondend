@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { addUser } from '../utils/userSlice.js';
 import { useNavigate } from 'react-router-dom';
-import { BASE_URL } from '../utils/constant.js';
+import { API_URL } from '../utils/constant.js';
 
 
 const Login = () => {
@@ -28,7 +28,7 @@ const Login = () => {
   const navigate = useNavigate()
   const handleLogin = async  () =>  {
   try {
-    const res  = await axios.post(BASE_URL+"/login", {emailId ,password,},{
+    const res  = await axios.post(API_URL+"/login", {emailId ,password,},{
       withCredentials:true
     });
 

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import React, { useEffect } from 'react'
-import { BASE_URL } from '../utils/constant'
+import { API_URL } from '../utils/constant'
 import { useDispatch, useSelector } from 'react-redux'
 import { addRequests, removeRequests } from '../utils/requestSlice'
 
@@ -12,7 +12,7 @@ const Requests = () => {
    console.log(requestConnection)
   const revieRequest = async(status, _id)=>{
      try{
-      const res = await axios.post(BASE_URL+  "/request/review/" +  status + "/" + _id,{},{withCredentials:true});
+      const res = await axios.post(API_URL+  "/request/review/" +  status + "/" + _id,{},{withCredentials:true});
 
       dispatch(removeRequests(_id));
       console.log(requestConnection);
