@@ -11,5 +11,5 @@ feed:feedReducer,
 connections:connectionReducer,
 requests: requestReducer,
 }
-});
+}); 
 
