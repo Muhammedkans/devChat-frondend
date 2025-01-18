@@ -18,7 +18,7 @@ const Requests = () => {
       console.log(requestConnection);
      }catch(err){
 
-     }
+     } 
   }
 
   const requestFetch = async()=>{
