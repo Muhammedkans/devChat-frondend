@@ -35,7 +35,7 @@ const Feed = () => {
   if (feed.length === 0)
     return <h1 className="flex justify-center my-10">No new users founds!</h1>;
 
-  return (
+  return ( 
     feed && (
       <div className="flex justify-center my-10">
         <UserData user={feed[0]} />
