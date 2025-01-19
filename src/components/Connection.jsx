@@ -3,7 +3,7 @@ import { API_URL } from "../utils/constant.js";
 import { useEffect } from "react";
 import {  useDispatch, useSelector } from "react-redux";
 import { addConnection} from "../utils/connectionSlice.js";
-
+ 
 const Connections = () => {
   const connections = useSelector((store) => store.connections);
   console.log(connections)
