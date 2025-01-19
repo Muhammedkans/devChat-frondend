@@ -23,7 +23,7 @@ const Requests = () => {
 
   const requestFetch = async()=>{
     try{
-      const res = await axios.get(BASE_URL + "/request/review/recieved",{withCredentials:true});
+      const res = await axios.get(API_URL + "/request/review/recieved",{withCredentials:true});
     dispatch(addRequests(res?.data.data))
     console.log(res.data.data);
     }catch(err){

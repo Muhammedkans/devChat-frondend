@@ -25,8 +25,8 @@ const UserData = ({user}) => {
 
 
   return (
-    <div className='flex justify-center'>
-    <div className="card bg-base-300 w-96 shadow-xl ">
+    <div className='flex justify-center  rounded-full shadow-md'>
+    <div className="card bg-base-300 w-96 h-auto shadow-xl ">
   <figure>
     <img
       src={photoUrl}
