@@ -8,7 +8,7 @@ import { useDispatch } from 'react-redux'
 import { addUser } from '../utils/userSlice.js'
 import { useSelector } from 'react-redux'
 const Body = () => {
-  
+      
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const userData = useSelector((store)=> store.user)
