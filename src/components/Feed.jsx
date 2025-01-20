@@ -22,7 +22,7 @@ const Feed = () => {
       if(err.response.status === 401){
         navigate("/login");
       }
-      console.log(err.response.status);
+     
 
     }
   };

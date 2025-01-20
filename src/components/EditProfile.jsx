@@ -10,7 +10,7 @@ import UserData from "./UserData";
 const EditProfile = ({ user}) => {
 
   
-console.log(user);
+
   const [firstName, setFirstName] = useState(user.firstName);
   const [lastName, setLastName] = useState(user.lastName);
   const [photoUrl, setPhotoUrl] = useState(user.photoUrl);
@@ -21,7 +21,7 @@ console.log(user);
   const dispatch = useDispatch();
   const [showToast, setShowToast] = useState(false);
 
-console.log(age,gender);
+
 
   const saveProfile = async () => {
     
@@ -41,15 +41,15 @@ console.log(age,gender);
         { withCredentials: true }
       );
       dispatch(addUser(res?.data?.data));
-      console.log(res);
+     
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
       }, 3000);
     } catch (err) {
       setError(err.response.data);
-      console.error(err);
-      console.log(err)
+      
+      
       
     }
   };

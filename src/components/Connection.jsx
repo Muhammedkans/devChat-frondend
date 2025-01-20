@@ -6,7 +6,7 @@ import { addConnection} from "../utils/connectionSlice.js";
  
 const Connections = () => {
   const connections = useSelector((store) => store.connections);
-  console.log(connections)
+ 
   const dispatch = useDispatch();
   const fetchConnections = async () => {
     try {
@@ -14,10 +14,10 @@ const Connections = () => {
         withCredentials: true,
       });
       dispatch(addConnection(res?.data?.data));
-      console.log(res);
+     
     } catch (err) {
       // Handle Error Case
-      console.log(err);
+     
     }
   };
 

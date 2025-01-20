@@ -34,7 +34,7 @@ const Login = () => {
 
     
     dispatch(addUser(res?.data));
-    console.log(res.data);
+    
     navigate("/feed");
   }
   catch(err){

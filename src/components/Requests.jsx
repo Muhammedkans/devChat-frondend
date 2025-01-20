@@ -9,13 +9,13 @@ const Requests = () => {
   const dispatch = useDispatch();
 
   const requestConnection = useSelector((store)=> store.requests)
-   console.log(requestConnection)
+   
   const revieRequest = async(status, _id)=>{
      try{
       const res = await axios.post(API_URL+  "/request/review/" +  status + "/" + _id,{},{withCredentials:true});
 
       dispatch(removeRequests(_id));
-      console.log(requestConnection);
+     
      }catch(err){
 
      } 
@@ -25,7 +25,7 @@ const Requests = () => {
     try{
       const res = await axios.get(API_URL + "/request/review/recieved",{withCredentials:true});
     dispatch(addRequests(res?.data.data))
-    console.log(res.data.data);
+    
     }catch(err){
       console.log(err.response.data)
     }
