@@ -3,6 +3,7 @@ import { API_URL } from "../utils/constant.js";
 import { useEffect } from "react";
 import {  useDispatch, useSelector } from "react-redux";
 import { addConnection} from "../utils/connectionSlice.js";
+import { Link } from "react-router-dom";
  
 const Connections = () => {
   const connections = useSelector((store) => store.connections);
@@ -16,8 +17,8 @@ const Connections = () => {
       dispatch(addConnection(res?.data?.data));
      
     } catch (err) {
-      // Handle Error Case
-     
+      // Handle Error Case 
+     console.log(err);
     }
   };
 
@@ -55,6 +56,11 @@ const Connections = () => {
               </h2>
               {age && gender && <p>{age + ", " + gender}</p>}
               <p>{about}</p>
+            <Link to={"/chat/" + _id}>
+            <button className="bg-secondary px-4 py-2 rounded ">Chat</button>
+            </Link>
+              
+              
             </div>
           </div>
         );

@@ -31,8 +31,7 @@ const Login = () => {
     const res  = await axios.post(API_URL+"/login", {emailId ,password,},{
       withCredentials:true
     });
-
-    
+    console.log(API_URL);
     dispatch(addUser(res?.data));
     
     navigate("/feed");

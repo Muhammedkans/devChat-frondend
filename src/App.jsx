@@ -11,6 +11,7 @@ import { store } from "./utils/appStore.js"
 
 import Connection from "./components/Connection.jsx"
 import Requests from "./components/Requests.jsx"
+import Chat from "./components/Chat.jsx"
 function App() {
 
   return (
@@ -25,6 +26,8 @@ function App() {
       <Route path="/profile" element={<Profile/>} />
       <Route  path="/connection"element={<Connection/>}/>
       <Route  path="/requests"element={<Requests/>}/>
+      <Route  path="/chat/:targetUserId"element={<Chat/>}/>
+      
    </Route>
    
   </Routes>
