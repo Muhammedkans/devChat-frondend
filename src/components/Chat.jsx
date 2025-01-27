@@ -70,8 +70,8 @@ const Chat = () => {
    }
 
    return (
-     <div className='w-2/4 border border-gray-400 m-4 h-[100vh]'>
-       <div className='w-full'> 
+     <div className='w-2/4 border border-gray-400 m-4 h-auto'>
+       <div className='w-full overflow-y-auto'> 
          <h2 className='text-xl font-extrabold text-secondary mx-auto p-5 border-b border-gray-400 text-center'>
            Chat
          </h2>
