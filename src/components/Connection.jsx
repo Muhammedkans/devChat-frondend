@@ -31,7 +31,7 @@ const Connections = () => {
   if (connections.length === 0) return <h1 className="text-center text-2xl"> No Connections Found</h1>;
 
   return (
-    <div className="text-center my-10">
+    <div className="text-center my-10 ">
       <h1 className="text-bold text-white text-3xl">Connections</h1>
 
       {connections.filter((connection) => connection && connection._id).map((connection) => {
@@ -41,9 +41,9 @@ const Connections = () => {
         return (
           <div
             key={_id}
-            className=" flex m-4 p-4 rounded-lg bg-base-300 w-1/2 mx-auto"
+            className=" flex m-4 p-4 rounded-lg bg-base-300 w-1/2 mx-auto  "
           >
-            <div>
+            <div className="">
               <img
                 alt="photo"
                 className="w-20 h-20 rounded-full object-cover"
@@ -56,12 +56,14 @@ const Connections = () => {
               </h2>
               {age && gender && <p>{age + ", " + gender}</p>}
               <p>{about}</p>
-            <Link to={"/chat/" + _id}>
-            <button className="bg-secondary px-4 py-2 rounded ">Chat</button>
-            </Link>
-              
-              
             </div>
+
+            <Link to={"/chat/" + _id}>
+            <div className="flex justify-end">
+            <button className="bg-secondary px-4 py-2 rounded ">Chat</button>
+            </div>
+            
+            </Link>
           </div>
         );
       })}

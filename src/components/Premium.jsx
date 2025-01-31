@@ -50,7 +50,9 @@ const [isUserPremium, setIsUserPremium] =useState(false);
  const rzp = new window.Razorpay(options);
  rzp.open();
   }
-  return isUserPremium ? <div>you are already a premium user</div> :(
+  return isUserPremium ? <div className='flex justify-center text-2xl m-10'> 
+   <h1 className=''>You are already a Premium User</h1>
+  </div> :(
     <div className="flex w-10/12 mx-auto flex-col lg:flex-row my-20 ">
   <div className="card bg-[#C0C0C0] text-white font-semibold text-3xl p-4 rounded-box grid h-80 flex-grow place-items-center"><h1>Silver Membership</h1>
 

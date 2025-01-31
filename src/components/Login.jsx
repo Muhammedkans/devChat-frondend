@@ -34,7 +34,7 @@ const Login = () => {
     console.log(API_URL);
     dispatch(addUser(res?.data));
     
-    navigate("/feed");
+    navigate("/");
   }
   catch(err){
    
