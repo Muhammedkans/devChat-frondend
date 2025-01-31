@@ -12,6 +12,7 @@ import { store } from "./utils/appStore.js"
 import Connection from "./components/Connection.jsx"
 import Requests from "./components/Requests.jsx"
 import Chat from "./components/Chat.jsx"
+import Premium from "./components/Premium.jsx"
 function App() {
 
   return (
@@ -27,7 +28,7 @@ function App() {
       <Route  path="/connection"element={<Connection/>}/>
       <Route  path="/requests"element={<Requests/>}/>
       <Route  path="/chat/:targetUserId"element={<Chat/>}/>
-      
+      <Route  path="/premium"element={<Premium/>}/>
    </Route>
    
   </Routes>
