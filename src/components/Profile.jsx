@@ -8,7 +8,7 @@ const Profile = () => {
  
   return (
    
-    user && (
+    user &&  (
       <div>
         <EditProfile user={user} />
       </div>
