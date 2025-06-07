@@ -15,6 +15,7 @@ import Chat from "./components/Chat.jsx"
 import Premium from "./components/Premium.jsx"
 import ProfilePage from "./components/ProfilePage.jsx"
 import EditProfile from "./components/EditProfile.jsx"
+import FeedPage from "./components/FeedPage.jsx";
 
 function App() {
 
@@ -27,7 +28,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Body/>} >
      
-      <Route path="/" element={<Feed/>}/>
+      <Route path="/" element={<FeedPage/>}/>
       <Route path="/login" element={<Login/>} />
       <Route path="/profile" element={<ProfilePage/>} />
       <Route  path="/connection"element={<Connection/>}/>

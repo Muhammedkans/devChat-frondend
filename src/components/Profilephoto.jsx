@@ -3,7 +3,7 @@ import useMyProfile from '../hooks/useMyProfile';
 import useUploadprofile from '../hooks/useUploadprofile';
 import toast from 'react-hot-toast';
 import { useQueryClient } from '@tanstack/react-query'; // ✅ add this
-
+import { MdVerified } from 'react-icons/md'; 
 const Profilephoto = () => {
   const queryClient = useQueryClient(); // ✅ fix
   const fileInputRef = useRef();
@@ -60,6 +60,15 @@ const Profilephoto = () => {
         onChange={handleChange}
         className="hidden"
       />
+
+         {/* ✅ Blue tick (show only if user.isPremium === true) */}
+      {user?.isPremium && (
+        <MdVerified
+          className="absolute bottom-2 right-2 text-blue-500 bg-white rounded-full"
+          size={24}
+          title="Verified"
+        />
+      )}
       {isPending && <p className="text-sm text-gray-500">Uploading...</p>}
     </div>
   );

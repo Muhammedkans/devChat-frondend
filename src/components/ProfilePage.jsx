@@ -14,7 +14,8 @@ const ProfilePage = () => {
   if (isLoading) return <p>Loading...</p>;
 
   return (
-  <div className="flex flex-col items-center mt-10 w-full">
+ <div className="flex flex-col items-center w-full min-h-screen overflow-y-auto px-4 py-10 bg-white">
+
       <Profilephoto />
       <h2 className="text-2xl font-bold">{`${data?.firstName} ${data?.lastName}`}</h2>
       <p className="text-sm text-gray-600">{data?.about}</p>
