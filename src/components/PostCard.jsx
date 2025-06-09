@@ -1,49 +1,37 @@
-import { useState } from "react";
-import { FaHeart, FaRegHeart } from "react-icons/fa";
-import { FaRegComment } from "react-icons/fa6";
+// src/components/PostCard.jsx
+import React, { useState } from "react";
+import { Heart, MessageCircle } from "lucide-react";
 import useMyProfile from "../hooks/useMyProfile";
+import API from "../api";
+import CommentForm from "./comments/CommentForm";
+import CommentList from "./comments/CommentList";
 
 const PostCard = ({ post }) => {
-  const { data: myUser } = useMyProfile();
+  const { data: currentUser, isLoading: profileLoading } = useMyProfile();
+  const [likes, setLikes] = useState(post.likes || []);
+  const [showComments, setShowComments] = useState(false);
 
-  const hasLiked = post.likes.includes(myUser?._id);
-  const [liked, setLiked] = useState(hasLiked);
-  const [likeCount, setLikeCount] = useState(post.likes.length);
+  if (profileLoading || !currentUser) return null;
 
-  // Comment UI states (only frontend)
-  const [commentText, setCommentText] = useState("");
-  const [comments, setComments] = useState([]); // later fetch from backend
+  const isLiked = likes.includes(currentUser._id);
 
-  const toggleLike = () => {
-    if (liked) {
-      setLiked(false);
-      setLikeCount(likeCount - 1);
-    } else {
-      setLiked(true);
-      setLikeCount(likeCount + 1);
+  const handleLikeToggle = async () => {
+    try {
+      if (isLiked) {
+        setLikes((prev) => prev.filter((id) => id !== currentUser._id));
+        await API.delete(`/posts/${post._id}/like`);
+      } else {
+        setLikes((prev) => [...prev, currentUser._id]);
+        await API.post(`/posts/${post._id}/like`);
+      }
+    } catch (err) {
+      console.error("Like toggle failed:", err);
     }
-  };
-
-  const handleCommentSubmit = (e) => {
-    e.preventDefault();
-    if (commentText.trim() === "") return;
-
-    const newComment = {
-      text: commentText,
-      user: {
-        firstName: myUser?.firstName,
-        lastName: myUser?.lastName,
-        photoUrl: myUser?.photoUrl,
-      },
-    };
-
-    setComments([newComment, ...comments]);
-    setCommentText("");
   };
 
   return (
     <div className="bg-white shadow-md rounded-xl p-4 mb-6">
-      {/* Top section with profile photo and name */}
+      {/* 👤 Post User Info */}
       <div className="flex items-center mb-3">
         <img
           src={post.user?.photoUrl}
@@ -55,8 +43,12 @@ const PostCard = ({ post }) => {
         </h2>
       </div>
 
-      {/* Post content */}
-      {post.contentText && <p className="text-gray-700 mb-2">{post.contentText}</p>}
+      {/* 📝 Post Text */}
+      {post.contentText && (
+        <p className="text-gray-700 mb-2">{post.contentText}</p>
+      )}
+
+      {/* 🖼️ Post Image */}
       {post.contentImageUrl && (
         <img
           src={post.contentImageUrl}
@@ -65,54 +57,40 @@ const PostCard = ({ post }) => {
         />
       )}
 
-      {/* Like + Comment icons */}
-      <div className="mt-4 flex items-center space-x-4">
-        <button onClick={toggleLike} className="focus:outline-none text-pink-500">
-          {liked ? <FaHeart className="text-xl" /> : <FaRegHeart className="text-xl" />}
+      {/* ❤️ Like & 💬 Comment Buttons */}
+      <div className="flex items-center gap-4 mt-3">
+        <button onClick={handleLikeToggle} className="hover:scale-110 transition">
+          {isLiked ? (
+            <Heart className="text-red-500 fill-red-500 w-5 h-5" />
+          ) : (
+            <Heart className="text-gray-500 w-5 h-5" />
+          )}
         </button>
-        <span className="text-gray-600 text-sm">{likeCount} likes</span>
+        <span className="text-sm text-gray-600">
+          {likes.length} {likes.length === 1 ? "like" : "likes"}
+        </span>
 
-        <FaRegComment className="text-xl text-gray-500" />
-      </div>
-
-      {/* Comment input */}
-      <form onSubmit={handleCommentSubmit} className="mt-3 flex gap-2">
-        <input
-          type="text"
-          placeholder="Add a comment..."
-          className="flex-1 px-3 py-1 border border-gray-300 rounded-full text-sm"
-          value={commentText}
-          onChange={(e) => setCommentText(e.target.value)}
-        />
         <button
-          type="submit"
-          className="text-sm text-blue-500 font-medium hover:underline"
+          onClick={() => setShowComments(!showComments)}
+          className="flex items-center text-sm text-gray-600 hover:text-blue-500"
         >
-          Post
+          <MessageCircle className="w-5 h-5 mr-1" />
+          Comment
         </button>
-      </form>
-
-      {/* Comment list */}
-      <div className="mt-3 space-y-2">
-        {comments.map((comment, index) => (
-          <div key={index} className="flex items-start gap-2">
-            <img
-              src={comment.user.photoUrl}
-              alt="Comment user"
-              className="w-8 h-8 rounded-full object-cover"
-            />
-            <div className="text-sm">
-              <span className="font-medium">
-                {comment.user.firstName} {comment.user.lastName}
-              </span>{" "}
-              {comment.text}
-            </div>
-          </div>
-        ))}
       </div>
+
+      {/* 💬 Comment Section */}
+      {showComments && (
+        <div className="mt-4 space-y-4">
+          <CommentForm postId={post._id} />
+          <CommentList postId={post._id} />
+        </div>
+      )}
     </div>
   );
 };
 
 export default PostCard;
+
+
 
