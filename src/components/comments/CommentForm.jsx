@@ -1,44 +1,46 @@
-
-// src/components/comments/CommentForm.jsx
 import React, { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createComment} from "../../api/comments";
+import { createComment } from "../../api/comments";
+import { useSocket } from "../../context/SocketContext"; // ✅
 
 const CommentForm = ({ postId }) => {
   const [text, setText] = useState("");
-  const queryClient = useQueryClient();
+  const socket = useSocket(); // ✅
 
-  const mutation = useMutation({
-    mutationFn: () => createComment({ postId, text }),
-    onSuccess: () => {
-      setText("");
-      queryClient.invalidateQueries(["comments", postId]);
-    },
-  });
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!text.trim()) return;
-    mutation.mutate();
+
+    try {
+      const newComment = await createComment({ postId, text });
+      socket.emit("newComment", {
+        postId,
+        comment: newComment,
+      });
+      setText("");
+    } catch (error) {
+      console.error("Failed to post comment", error);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-4">
-      <textarea
-        className="w-full p-2 border rounded mb-2"
-        placeholder="Write a comment..."
+    <form onSubmit={handleSubmit} className="flex gap-2">
+      <input
         value={text}
         onChange={(e) => setText(e.target.value)}
-        rows={3}
+        className="border p-2 flex-1"
+        placeholder="Write a comment..."
       />
-      <button
-        type="submit"
-        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-      >
-        Comment
+      <button type="submit" className="bg-blue-500 text-white px-4 py-2">
+        comment
       </button>
     </form>
   );
 };
 
 export default CommentForm;
+
+
+
+
+
+

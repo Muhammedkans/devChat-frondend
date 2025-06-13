@@ -1,87 +1,89 @@
-// src/components/PostCard.jsx
 import React, { useState } from "react";
-import { Heart, MessageCircle } from "lucide-react";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { FaRegComment } from "react-icons/fa6";
+import CommentForm from "../components/comments/CommentForm";
+import CommentList from "../components/comments/CommentList";
 import useMyProfile from "../hooks/useMyProfile";
-import API from "../api";
-import CommentForm from "./comments/CommentForm";
-import CommentList from "./comments/CommentList";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { likePost, unlikePost } from "../api/postLike"
+import { useSocket } from "../context/SocketContext";
 
 const PostCard = ({ post }) => {
-  const { data: currentUser, isLoading: profileLoading } = useMyProfile();
-  const [likes, setLikes] = useState(post.likes || []);
+  console.log(post)
+  const { data: myUser } = useMyProfile();
+  const queryClient = useQueryClient();
+  const socket = useSocket(); // 🔌 socket context
+
   const [showComments, setShowComments] = useState(false);
 
-  if (profileLoading || !currentUser) return null;
+  const hasLiked = post.likes.includes(myUser?._id);
 
-  const isLiked = likes.includes(currentUser._id);
+  const likeMutation = useMutation({
+    mutationFn: () =>
+      hasLiked ? unlikePost(post._id) : likePost(post._id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["posts"]); // refresh feed
 
-  const handleLikeToggle = async () => {
-    try {
-      if (isLiked) {
-        setLikes((prev) => prev.filter((id) => id !== currentUser._id));
-        await API.delete(`/posts/${post._id}/like`);
-      } else {
-        setLikes((prev) => [...prev, currentUser._id]);
-        await API.post(`/posts/${post._id}/like`);
-      }
-    } catch (err) {
-      console.error("Like toggle failed:", err);
-    }
+      // 🔌 Emit real-time like/unlike
+      socket?.emit("likeUpdate", {
+        postId: post._id,
+        userId: myUser?._id,
+        action: hasLiked ? "unlike" : "like",
+      });
+    },
+  });
+
+  const handleLike = () => {
+    if (!myUser?._id) return;
+    likeMutation.mutate();
   };
 
   return (
-    <div className="bg-white shadow-md rounded-xl p-4 mb-6">
-      {/* 👤 Post User Info */}
-      <div className="flex items-center mb-3">
+    <div className="border border-gray-300 rounded-xl p-4 shadow-sm bg-white">
+      <div className="flex items-center mb-2">
         <img
           src={post.user?.photoUrl}
           alt="Profile"
-          className="w-10 h-10 rounded-full object-cover mr-3"
+          className="w-10 h-10 rounded-full mr-3"
         />
-        <h2 className="font-semibold text-lg">
-          {post.user?.firstName} {post.user?.lastName}
-        </h2>
+        <div>
+          <p className="font-bold">{post.user?.firstName}</p>
+          <p className="text-sm text-gray-500">{post.createdAt?.slice(0, 10)}</p>
+        </div>
       </div>
 
-      {/* 📝 Post Text */}
-      {post.contentText && (
-        <p className="text-gray-700 mb-2">{post.contentText}</p>
+      {/* Post Content */}
+      {post?.contentText && (
+        <p className="mb-3 text-gray-800">{post.contentText}</p>
       )}
-
-      {/* 🖼️ Post Image */}
-      {post.contentImageUrl && (
+      {post?.contentImageUrl && (
         <img
           src={post.contentImageUrl}
           alt="Post"
-          className="w-full mt-2 rounded-xl object-cover"
+          className="w-full rounded-md mb-3"
         />
       )}
 
-      {/* ❤️ Like & 💬 Comment Buttons */}
-      <div className="flex items-center gap-4 mt-3">
-        <button onClick={handleLikeToggle} className="hover:scale-110 transition">
-          {isLiked ? (
-            <Heart className="text-red-500 fill-red-500 w-5 h-5" />
+      {/* Like & Comment Buttons */}
+      <div className="flex items-center space-x-4">
+        <button onClick={handleLike}>
+          {hasLiked ? (
+            <FaHeart className="text-red-500 text-xl" />
           ) : (
-            <Heart className="text-gray-500 w-5 h-5" />
+            <FaRegHeart className="text-xl" />
           )}
         </button>
-        <span className="text-sm text-gray-600">
-          {likes.length} {likes.length === 1 ? "like" : "likes"}
-        </span>
+        <span>{post.likes.length}</span>
 
-        <button
-          onClick={() => setShowComments(!showComments)}
-          className="flex items-center text-sm text-gray-600 hover:text-blue-500"
-        >
-          <MessageCircle className="w-5 h-5 mr-1" />
-          Comment
+        <button onClick={() => setShowComments(!showComments)}>
+          <FaRegComment className="text-xl" />
         </button>
+        <span>{post.comments?.length || 0}</span>
       </div>
 
-      {/* 💬 Comment Section */}
+      {/* Comment Section */}
       {showComments && (
-        <div className="mt-4 space-y-4">
+        <div className="mt-4">
           <CommentForm postId={post._id} />
           <CommentList postId={post._id} />
         </div>
@@ -91,6 +93,8 @@ const PostCard = ({ post }) => {
 };
 
 export default PostCard;
+
+
 
 
 
