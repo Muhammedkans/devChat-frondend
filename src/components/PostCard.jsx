@@ -1,41 +1,76 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { FaRegComment } from "react-icons/fa6";
 import CommentForm from "../components/comments/CommentForm";
 import CommentList from "../components/comments/CommentList";
 import useMyProfile from "../hooks/useMyProfile";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { likePost, unlikePost } from "../api/postLike"
+import { likePost, unlikePost } from "../api/postLike";
 import { useSocket } from "../context/SocketContext";
 
 const PostCard = ({ post }) => {
-  console.log(post)
   const { data: myUser } = useMyProfile();
   const queryClient = useQueryClient();
-  const socket = useSocket(); // 🔌 socket context
+  const socket = useSocket();
 
   const [showComments, setShowComments] = useState(false);
+  const [localLikes, setLocalLikes] = useState(post.likes || []);
 
-  const hasLiked = post.likes.includes(myUser?._id);
+  const hasLiked = myUser?._id && localLikes.includes(myUser._id);
 
+  // ✅ 1. Real-time updates from socket
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleLikeUpdate = ({ postId, userId, action }) => {
+      if (postId !== post._id) return;
+
+      setLocalLikes((prevLikes) => {
+        if (action === "like" && !prevLikes.includes(userId)) {
+          return [...prevLikes, userId];
+        } else if (action === "unlike") {
+          return prevLikes.filter((id) => id !== userId);
+        }
+        return prevLikes;
+      });
+    };
+
+    socket.on("likeUpdate", handleLikeUpdate);
+
+    return () => {
+      socket.off("likeUpdate", handleLikeUpdate);
+    };
+  }, [socket, post._id]);
+
+  // ✅ 2. Like/Unlike mutation
   const likeMutation = useMutation({
-    mutationFn: () =>
+    mutationFn: ({ hasLiked }) =>
       hasLiked ? unlikePost(post._id) : likePost(post._id),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["posts"]); // refresh feed
-
-      // 🔌 Emit real-time like/unlike
+    onSuccess: (_, variables) => {
       socket?.emit("likeUpdate", {
         postId: post._id,
-        userId: myUser?._id,
-        action: hasLiked ? "unlike" : "like",
+        userId: myUser._id,
+        action: variables.hasLiked ? "unlike" : "like",
       });
+      queryClient.invalidateQueries(["posts"]);
     },
   });
 
+  // ✅ 3. Immediate optimistic update
   const handleLike = () => {
     if (!myUser?._id) return;
-    likeMutation.mutate();
+
+    const currentlyLiked = localLikes.includes(myUser._id);
+
+    // 🔥 Optimistically update UI
+    setLocalLikes((prev) =>
+      currentlyLiked
+        ? prev.filter((id) => id !== myUser._id)
+        : [...prev, myUser._id]
+    );
+
+    // 🔄 Trigger mutation + emit socket
+    likeMutation.mutate({ hasLiked: currentlyLiked });
   };
 
   return (
@@ -48,11 +83,12 @@ const PostCard = ({ post }) => {
         />
         <div>
           <p className="font-bold">{post.user?.firstName}</p>
-          <p className="text-sm text-gray-500">{post.createdAt?.slice(0, 10)}</p>
+          <p className="text-sm text-gray-500">
+            {post.createdAt?.slice(0, 10)}
+          </p>
         </div>
       </div>
 
-      {/* Post Content */}
       {post?.contentText && (
         <p className="mb-3 text-gray-800">{post.contentText}</p>
       )}
@@ -64,7 +100,6 @@ const PostCard = ({ post }) => {
         />
       )}
 
-      {/* Like & Comment Buttons */}
       <div className="flex items-center space-x-4">
         <button onClick={handleLike}>
           {hasLiked ? (
@@ -73,7 +108,7 @@ const PostCard = ({ post }) => {
             <FaRegHeart className="text-xl" />
           )}
         </button>
-        <span>{post.likes.length}</span>
+        <span>{localLikes.length}</span>
 
         <button onClick={() => setShowComments(!showComments)}>
           <FaRegComment className="text-xl" />
@@ -81,7 +116,6 @@ const PostCard = ({ post }) => {
         <span>{post.comments?.length || 0}</span>
       </div>
 
-      {/* Comment Section */}
       {showComments && (
         <div className="mt-4">
           <CommentForm postId={post._id} />
@@ -93,6 +127,12 @@ const PostCard = ({ post }) => {
 };
 
 export default PostCard;
+
+
+
+
+
+
 
 
 
