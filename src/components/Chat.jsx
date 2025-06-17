@@ -10,21 +10,25 @@ const Chat = () => {
   const [messages, setMessages] = useState([]);
   const { targetUserId } = useParams();
   const user = useSelector((store) => store.user);
-  const socket = useSocket();
+  const { socket } = useSocket();
 
+  // Fetch existing chat messages
   const fetchChatMessage = async () => {
-    const chat = await axios.get(API_URL + "/chat/" + targetUserId, { withCredentials: true });
+    try {
+      const response = await axios.get(`${API_URL}/chat/${targetUserId}`, {
+        withCredentials: true,
+      });
 
-    const chatMessage = chat?.data?.messages.map((msg) => {
-      const { senderId, text } = msg;
-      return {
-        firstName: senderId?.firstName,
-        lastName: senderId?.lastName,
-        text,
-      };
-    });
+      const chatMessage = response?.data?.messages.map((msg) => ({
+        firstName: msg?.senderId?.firstName,
+        lastName: msg?.senderId?.lastName,
+        text: msg.text,
+      }));
 
-    setMessages(chatMessage);
+      setMessages(chatMessage);
+    } catch (error) {
+      console.error("Error fetching chat:", error.message);
+    }
   };
 
   useEffect(() => {
@@ -34,14 +38,18 @@ const Chat = () => {
   useEffect(() => {
     if (!socket || !user?._id) return;
 
-    socket.emit("joinChat", {
-      firstName: user.firstName,
-      userId: user._id,
-      targetUserId,
-    });
+    socket.emit("joinChat", { targetUserId });
 
-    socket.on("messageReceived", ({ firstName, lastName, text }) => {
-      setMessages((messages) => [...messages, { firstName, lastName, text }]);
+    socket.on("messageReceived", (message) => {
+      const { senderId, text } = message;
+      setMessages((prev) => [
+        ...prev,
+        {
+          firstName: senderId?.firstName,
+          lastName: senderId?.lastName,
+          text,
+        },
+      ]);
     });
 
     return () => {
@@ -49,24 +57,24 @@ const Chat = () => {
     };
   }, [socket, user?._id, targetUserId]);
 
-  // ✅ Fix: add message to state instantly
   const sendMessage = () => {
-    if (!socket || !newMessage.trim()) return;
+    if (!newMessage.trim()) return;
 
-    const msg = {
-      firstName: user?.firstName,
-      lastName: user?.lastName,
-      userId: user?._id,
+    socket.emit("sendMessage", {
       targetUserId,
       text: newMessage,
-    };
+    });
 
-    socket.emit("sendMessage", msg);
+    setMessages((prev) => [
+      ...prev,
+      {
+        firstName: user?.firstName,
+        lastName: user?.lastName,
+        text: newMessage,
+      },
+    ]);
 
-    // ✅ Update local state immediately to show message without refresh
-    setMessages((prev) => [...prev, { firstName: msg.firstName, lastName: msg.lastName, text: msg.text }]);
-
-    setNewMessage("");
+    setNewMessage('');
   };
 
   return (
@@ -101,6 +109,7 @@ const Chat = () => {
             onChange={(e) => setNewMessage(e.target.value)}
             type="text"
             className="border-3 flex-1 p-2"
+            placeholder="Type a message"
           />
           <button onClick={sendMessage} className="bg-secondary p-4">Send</button>
         </div>
@@ -110,6 +119,23 @@ const Chat = () => {
 };
 
 export default Chat;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

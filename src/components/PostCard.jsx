@@ -7,31 +7,34 @@ import useMyProfile from "../hooks/useMyProfile";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { likePost, unlikePost } from "../api/postLike";
 import { useSocket } from "../context/SocketContext";
+import { Link } from "react-router-dom";
 
 const PostCard = ({ post }) => {
   const { data: myUser } = useMyProfile();
+  const { socket, isConnected } = useSocket();
   const queryClient = useQueryClient();
-  const socket = useSocket();
 
   const [showComments, setShowComments] = useState(false);
-  const [localLikes, setLocalLikes] = useState(post.likes || []);
+  const [likes, setLikes] = useState(post.likes || []);
+  const hasLiked = myUser?._id && likes.includes(myUser._id);
 
-  const hasLiked = myUser?._id && localLikes.includes(myUser._id);
-
-  // ✅ 1. Real-time updates from socket
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || typeof socket.on !== "function") {
+      console.warn("❌ Socket not initialized properly in PostCard.");
+      return;
+    }
 
     const handleLikeUpdate = ({ postId, userId, action }) => {
       if (postId !== post._id) return;
 
-      setLocalLikes((prevLikes) => {
-        if (action === "like" && !prevLikes.includes(userId)) {
-          return [...prevLikes, userId];
-        } else if (action === "unlike") {
-          return prevLikes.filter((id) => id !== userId);
+      setLikes((prev) => {
+        if (action === "like" && !prev.includes(userId)) {
+          return [...prev, userId];
         }
-        return prevLikes;
+        if (action === "unlike") {
+          return prev.filter((id) => id !== userId);
+        }
+        return prev;
       });
     };
 
@@ -42,82 +45,80 @@ const PostCard = ({ post }) => {
     };
   }, [socket, post._id]);
 
-  // ✅ 2. Like/Unlike mutation
   const likeMutation = useMutation({
     mutationFn: ({ hasLiked }) =>
       hasLiked ? unlikePost(post._id) : likePost(post._id),
     onSuccess: (_, variables) => {
-      socket?.emit("likeUpdate", {
-        postId: post._id,
-        userId: myUser._id,
-        action: variables.hasLiked ? "unlike" : "like",
-      });
+      if (socket && typeof socket.emit === "function") {
+        socket.emit("likeUpdate", {
+          postId: post._id,
+          userId: myUser._id,
+          action: variables.hasLiked ? "unlike" : "like",
+        });
+      }
       queryClient.invalidateQueries(["posts"]);
     },
   });
 
-  // ✅ 3. Immediate optimistic update
   const handleLike = () => {
     if (!myUser?._id) return;
-
-    const currentlyLiked = localLikes.includes(myUser._id);
-
-    // 🔥 Optimistically update UI
-    setLocalLikes((prev) =>
-      currentlyLiked
-        ? prev.filter((id) => id !== myUser._id)
-        : [...prev, myUser._id]
+    const liked = likes.includes(myUser._id);
+    setLikes((prev) =>
+      liked ? prev.filter((id) => id !== myUser._id) : [...prev, myUser._id]
     );
-
-    // 🔄 Trigger mutation + emit socket
-    likeMutation.mutate({ hasLiked: currentlyLiked });
+    likeMutation.mutate({ hasLiked: liked });
   };
 
+  const isMyPost = myUser?._id === post.user?._id;
+  const profileLink = isMyPost ? "/profile" : `/users/${post.user?._id}`;
+
   return (
-    <div className="border border-gray-300 rounded-xl p-4 shadow-sm bg-white">
-      <div className="flex items-center mb-2">
-        <img
-          src={post.user?.photoUrl}
-          alt="Profile"
-          className="w-10 h-10 rounded-full mr-3"
-        />
-        <div>
-          <p className="font-bold">{post.user?.firstName}</p>
-          <p className="text-sm text-gray-500">
-            {post.createdAt?.slice(0, 10)}
-          </p>
-        </div>
+    <div className="border rounded-lg bg-white shadow-sm mb-6">
+      {/* Post Header */}
+      <div className="flex items-center justify-between px-4 py-3">
+        <Link to={profileLink} className="flex items-center gap-3 hover:bg-gray-50 p-2 rounded">
+          <img
+            src={post.user?.photoUrl}
+            alt="User"
+            className="w-10 h-10 rounded-full object-cover"
+          />
+          <div>
+            <p className="font-semibold text-sm">{post.user?.firstName}</p>
+            <p className="text-xs text-gray-500">{post.createdAt?.slice(0, 10)}</p>
+          </div>
+        </Link>
       </div>
 
-      {post?.contentText && (
-        <p className="mb-3 text-gray-800">{post.contentText}</p>
-      )}
-      {post?.contentImageUrl && (
+      {/* Post Content */}
+      {post.contentText && <p className="px-4 text-sm mb-2">{post.contentText}</p>}
+      {post.contentImageUrl && (
         <img
           src={post.contentImageUrl}
           alt="Post"
-          className="w-full rounded-md mb-3"
+          className="w-full max-h-[500px] object-cover"
         />
       )}
 
-      <div className="flex items-center space-x-4">
+      {/* Actions */}
+      <div className="flex items-center px-4 py-2 gap-5">
         <button onClick={handleLike}>
           {hasLiked ? (
-            <FaHeart className="text-red-500 text-xl" />
+            <FaHeart className="text-red-500 text-2xl" />
           ) : (
-            <FaRegHeart className="text-xl" />
+            <FaRegHeart className="text-2xl" />
           )}
         </button>
-        <span>{localLikes.length}</span>
+        <span className="text-sm">{likes.length}</span>
 
-        <button onClick={() => setShowComments(!showComments)}>
-          <FaRegComment className="text-xl" />
+        <button onClick={() => setShowComments((s) => !s)}>
+          <FaRegComment className="text-2xl" />
         </button>
-        <span>{post.comments?.length || 0}</span>
+        <span className="text-sm">{post.comments?.length || 0}</span>
       </div>
 
+      {/* Comments */}
       {showComments && (
-        <div className="mt-4">
+        <div className="px-4 pb-4">
           <CommentForm postId={post._id} />
           <CommentList postId={post._id} />
         </div>
@@ -127,6 +128,14 @@ const PostCard = ({ post }) => {
 };
 
 export default PostCard;
+
+
+
+
+
+
+
+
 
 
 

@@ -1,43 +1,76 @@
-// context/SocketContext.jsx
-import React, { createContext, useContext, useEffect, useRef, useState } from "react";
+// src/context/SocketContext.js
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+} from "react";
 import { io } from "socket.io-client";
-import SOCKET_URL from "../api/socketUrl";
+import SOCKET_URL from "../api/socketUrl"; // example: 'https://your-backend-url.com'
 
-const SocketContext = createContext(null);
+const SocketContext = createContext();
 
 export const SocketProvider = ({ children }) => {
-  const socket = useRef(null);
+  const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [onlineUsers, setOnlineUsers] = useState([]);
 
   useEffect(() => {
-    socket.current = io(SOCKET_URL, {
+    const newSocket = io(SOCKET_URL, {
       withCredentials: true,
+      transports: ["websocket"], // force websocket for performance
     });
 
-    socket.current.on("connect", () => {
-      setIsConnected(true);
+    setSocket(newSocket);
+
+    newSocket.on("connect", () => {
       console.log("✅ Socket connected");
+      setIsConnected(true);
     });
 
-    socket.current.on("disconnect", () => {
-      setIsConnected(false);
+    newSocket.on("disconnect", () => {
       console.log("❌ Socket disconnected");
+      setIsConnected(false);
+    });
+
+    newSocket.on("updateOnlineUsers", (users) => {
+      setOnlineUsers(users);
     });
 
     return () => {
-      socket.current.disconnect();
+      newSocket.disconnect();
     };
   }, []);
 
+  const contextValue = {
+    socket,
+    isConnected,
+    onlineUsers,
+  };
+
   return (
-    <SocketContext.Provider value={socket.current}>
+    <SocketContext.Provider value={contextValue}>
       {children}
     </SocketContext.Provider>
   );
 };
 
 export const useSocket = () => {
-  return useContext(SocketContext);
+  const context = useContext(SocketContext);
+  if (!context) {
+    throw new Error("useSocket must be used within a SocketProvider");
+  }
+  return context;
 };
+
+
+
+
+
+
+
+
+
 
 
