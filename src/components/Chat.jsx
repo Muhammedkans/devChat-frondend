@@ -1,33 +1,35 @@
+// src/pages/Chat.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { API_URL } from '../utils/constant';
 import { useSocket } from '../context/SocketContext';
+import useMyProfile from '../hooks/useMyProfile';
 
 const Chat = () => {
   const [newMessage, setNewMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const { targetUserId } = useParams();
-  const user = useSelector((store) => store.user);
+  const { data: user, isLoading } = useMyProfile();
   const { socket } = useSocket();
 
-  // Fetch existing chat messages
   const fetchChatMessage = async () => {
     try {
-      const response = await axios.get(`${API_URL}/chat/${targetUserId}`, {
-        withCredentials: true,
+      const chat = await axios.get(API_URL + "/chat/" + targetUserId, { withCredentials: true });
+
+      const chatMessage = chat?.data?.messages.map((msg) => {
+        const { senderId, text } = msg;
+        return {
+          firstName: senderId?.firstName,
+          lastName: senderId?.lastName,
+          text,
+          userId: senderId?._id,
+        };
       });
 
-      const chatMessage = response?.data?.messages.map((msg) => ({
-        firstName: msg?.senderId?.firstName,
-        lastName: msg?.senderId?.lastName,
-        text: msg.text,
-      }));
-
       setMessages(chatMessage);
-    } catch (error) {
-      console.error("Error fetching chat:", error.message);
+    } catch (err) {
+      console.error("❌ Failed to fetch chat:", err);
     }
   };
 
@@ -38,18 +40,13 @@ const Chat = () => {
   useEffect(() => {
     if (!socket || !user?._id) return;
 
-    socket.emit("joinChat", { targetUserId });
+    socket.emit("joinChat", {
+      userId: user._id,
+      targetUserId,
+    });
 
-    socket.on("messageReceived", (message) => {
-      const { senderId, text } = message;
-      setMessages((prev) => [
-        ...prev,
-        {
-          firstName: senderId?.firstName,
-          lastName: senderId?.lastName,
-          text,
-        },
-      ]);
+    socket.on("messageReceived", ({ firstName, lastName, text, userId }) => {
+      setMessages((prev) => [...prev, { firstName, lastName, text, userId }]);
     });
 
     return () => {
@@ -58,23 +55,17 @@ const Chat = () => {
   }, [socket, user?._id, targetUserId]);
 
   const sendMessage = () => {
-    if (!newMessage.trim()) return;
+    if (!socket || !newMessage.trim()) return;
 
     socket.emit("sendMessage", {
+      userId: user._id,
       targetUserId,
       text: newMessage,
+      firstName: user.firstName,
+      lastName: user.lastName,
     });
 
-    setMessages((prev) => [
-      ...prev,
-      {
-        firstName: user?.firstName,
-        lastName: user?.lastName,
-        text: newMessage,
-      },
-    ]);
-
-    setNewMessage('');
+    setNewMessage("");
   };
 
   return (
@@ -85,7 +76,7 @@ const Chat = () => {
         </h2>
 
         {messages.map((msg, index) => (
-          <div key={index} className={`chat ${user.firstName === msg.firstName ? "chat-end" : "chat-start"} h-40`}>
+          <div key={index} className={`chat ${user._id === msg.userId ? "chat-end" : "chat-start"} h-40`}>
             <div className="chat-image avatar">
               <div className="w-10 rounded-full">
                 <img
@@ -109,7 +100,7 @@ const Chat = () => {
             onChange={(e) => setNewMessage(e.target.value)}
             type="text"
             className="border-3 flex-1 p-2"
-            placeholder="Type a message"
+            placeholder="Type your message..."
           />
           <button onClick={sendMessage} className="bg-secondary p-4">Send</button>
         </div>
@@ -119,6 +110,17 @@ const Chat = () => {
 };
 
 export default Chat;
+
+
+
+
+
+
+
+
+
+
+
 
 
 
