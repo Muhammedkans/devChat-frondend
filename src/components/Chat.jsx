@@ -14,12 +14,12 @@ const Chat = () => {
   const { socket } = useSocket();
   const messagesEndRef = useRef(null);
 
-  // Auto scroll to bottom when message updates
+  // Auto scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Fetch old chat messages
+  // Fetch chat messages
   useEffect(() => {
     const fetchChatMessage = async () => {
       try {
@@ -34,6 +34,7 @@ const Chat = () => {
             lastName: senderId?.lastName,
             text,
             userId: senderId?._id,
+            photoUrl: senderId?.photoUrl, // ✅ add photoUrl here
           };
         });
 
@@ -46,14 +47,14 @@ const Chat = () => {
     fetchChatMessage();
   }, [targetUserId]);
 
-  // Real-time incoming message
+  // Real-time message receiving
   useEffect(() => {
     if (!socket || !user?._id) return;
 
     socket.emit("joinChat", { targetUserId });
 
-    const handleReceiveMessage = ({ firstName, lastName, text, userId }) => {
-      setMessages((prev) => [...prev, { firstName, lastName, text, userId }]);
+    const handleReceiveMessage = ({ firstName, lastName, text, userId, photoUrl }) => {
+      setMessages((prev) => [...prev, { firstName, lastName, text, userId, photoUrl }]);
     };
 
     socket.on("messageReceived", handleReceiveMessage);
@@ -72,6 +73,7 @@ const Chat = () => {
       text: newMessage.trim(),
       firstName: user.firstName,
       lastName: user.lastName,
+      photoUrl: user.photoUrl, // ✅ include sender photoUrl while sending
     });
 
     setNewMessage('');
@@ -79,7 +81,6 @@ const Chat = () => {
 
   return (
     <div className="w-full max-w-xl mx-auto border border-gray-300 rounded-lg shadow-md overflow-hidden bg-white">
-      {/* ✅ Chat Header with user info + online status */}
       <ChatHeader userId={targetUserId} />
 
       <div className="flex flex-col h-[600px] overflow-y-auto p-4">
@@ -92,7 +93,7 @@ const Chat = () => {
               <div className="w-10 rounded-full">
                 <img
                   alt="Profile"
-                  src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                  src={msg.photoUrl || "/default-avatar.png"} // ✅ use msg.photoUrl
                 />
               </div>
             </div>
@@ -107,7 +108,6 @@ const Chat = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* ✅ Send Message */}
       <div className="p-4 border-t border-gray-300 flex items-center gap-2">
         <input
           value={newMessage}
@@ -128,6 +128,7 @@ const Chat = () => {
 };
 
 export default Chat;
+
 
 
 
