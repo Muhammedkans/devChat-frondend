@@ -4,6 +4,7 @@ import axios from 'axios';
 import { API_URL } from '../utils/constant';
 import { useSocket } from '../context/SocketContext';
 import useMyProfile from '../hooks/useMyProfile';
+import ChatHeader from '../components/ChatHeader';
 
 const Chat = () => {
   const [newMessage, setNewMessage] = useState('');
@@ -13,12 +14,12 @@ const Chat = () => {
   const { socket } = useSocket();
   const messagesEndRef = useRef(null);
 
-  // Scroll to bottom whenever messages update
+  // Auto scroll to bottom when message updates
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Fetch old messages
+  // Fetch old chat messages
   useEffect(() => {
     const fetchChatMessage = async () => {
       try {
@@ -45,7 +46,7 @@ const Chat = () => {
     fetchChatMessage();
   }, [targetUserId]);
 
-  // Setup socket listeners
+  // Real-time incoming message
   useEffect(() => {
     if (!socket || !user?._id) return;
 
@@ -77,12 +78,11 @@ const Chat = () => {
   };
 
   return (
-    <div className="w-2/4 border border-gray-400 m-4 h-auto flex justify-center mx-auto">
-      <div className="w-full flex-1 overflow-auto p-5 chat-container max-h-[600px]">
-        <h2 className="text-xl font-extrabold text-secondary mx-auto p-5 border-b border-gray-400 text-center">
-          Chat
-        </h2>
+    <div className="w-full max-w-xl mx-auto border border-gray-300 rounded-lg shadow-md overflow-hidden bg-white">
+      {/* ✅ Chat Header with user info + online status */}
+      <ChatHeader userId={targetUserId} />
 
+      <div className="flex flex-col h-[600px] overflow-y-auto p-4">
         {messages.map((msg, index) => (
           <div
             key={index}
@@ -96,35 +96,39 @@ const Chat = () => {
                 />
               </div>
             </div>
-            <div className="chat-header">
-              {`${msg?.firstName} ${msg?.lastName}`}
+            <div className="chat-header font-medium text-sm">
+              {msg.firstName} {msg.lastName}
               <time className="text-xs opacity-50 ml-2">now</time>
             </div>
-            <div className="chat-bubble">{msg?.text}</div>
-            <div className="chat-footer opacity-50">Delivered</div>
+            <div className="chat-bubble">{msg.text}</div>
+            <div className="chat-footer opacity-50 text-xs">Delivered</div>
           </div>
         ))}
-
         <div ref={messagesEndRef} />
+      </div>
 
-        <div className="p-5 border-t border-gray-400 flex justify-between items-center">
-          <input
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            type="text"
-            className="border-2 border-gray-300 rounded-md flex-1 p-2 mr-2"
-            placeholder="Type your message..."
-          />
-          <button onClick={sendMessage} className="bg-blue-500 text-white px-4 py-2 rounded-md">
-            Send
-          </button>
-        </div>
+      {/* ✅ Send Message */}
+      <div className="p-4 border-t border-gray-300 flex items-center gap-2">
+        <input
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
+          type="text"
+          className="flex-1 border border-gray-300 rounded-md p-2"
+          placeholder="Type your message..."
+        />
+        <button
+          onClick={sendMessage}
+          className="bg-blue-500 text-white px-4 py-2 rounded-md"
+        >
+          Send
+        </button>
       </div>
     </div>
   );
 };
 
 export default Chat;
+
 
 
 
