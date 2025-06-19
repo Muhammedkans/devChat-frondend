@@ -14,12 +14,12 @@ const Chat = () => {
   const { socket } = useSocket();
   const messagesEndRef = useRef(null);
 
-  // Auto scroll to bottom
+  // Auto scroll to bottom when message updates
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Fetch chat messages
+  // Fetch old chat messages
   useEffect(() => {
     const fetchChatMessage = async () => {
       try {
@@ -34,7 +34,7 @@ const Chat = () => {
             lastName: senderId?.lastName,
             text,
             userId: senderId?._id,
-            photoUrl: senderId?.photoUrl, // ✅ add photoUrl here
+            photoUrl: senderId?.photoUrl,
           };
         });
 
@@ -47,7 +47,7 @@ const Chat = () => {
     fetchChatMessage();
   }, [targetUserId]);
 
-  // Real-time message receiving
+  // Real-time incoming message
   useEffect(() => {
     if (!socket || !user?._id) return;
 
@@ -73,27 +73,29 @@ const Chat = () => {
       text: newMessage.trim(),
       firstName: user.firstName,
       lastName: user.lastName,
-      photoUrl: user.photoUrl, // ✅ include sender photoUrl while sending
+      photoUrl: user.photoUrl,
     });
 
     setNewMessage('');
   };
 
   return (
-    <div className="w-full max-w-xl mx-auto border border-gray-300 rounded-lg shadow-md overflow-hidden bg-white">
+    <div className="h-screen flex flex-col max-w-xl mx-auto border border-gray-300 rounded-lg shadow-md bg-white">
+      {/* Chat Header */}
       <ChatHeader userId={targetUserId} />
 
-      <div className="flex flex-col h-[600px] overflow-y-auto p-4">
+      {/* Message list area */}
+      <div className="flex-1 overflow-y-auto p-4">
         {messages.map((msg, index) => (
           <div
             key={index}
             className={`chat ${user._id === msg.userId ? "chat-end" : "chat-start"} mb-4`}
           >
             <div className="chat-image avatar">
-              <div className="w-10 rounded-full">
+              <div className="w-10 h-10 rounded-full">
                 <img
                   alt="Profile"
-                  src={msg.photoUrl || "/default-avatar.png"} // ✅ use msg.photoUrl
+                  src={msg.photoUrl || "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"}
                 />
               </div>
             </div>
@@ -108,7 +110,8 @@ const Chat = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-4 border-t border-gray-300 flex items-center gap-2">
+      {/* Sticky Input Area */}
+      <div className="sticky bottom-0 bg-white p-4 border-t border-gray-300 flex items-center gap-2">
         <input
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
@@ -128,6 +131,8 @@ const Chat = () => {
 };
 
 export default Chat;
+
+
 
 
 

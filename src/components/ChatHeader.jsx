@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { useSocket } from "../context/SocketContext";
 import { FaCircle } from "react-icons/fa";
-import axios from "axios";
+
+import API from "../api";
 
 const ChatHeader = ({ userId }) => {
   const { onlineUsers } = useSocket();
@@ -9,7 +10,7 @@ const ChatHeader = ({ userId }) => {
   const { data: user, isLoading } = useQuery({
     queryKey: ["chatUser", userId],
     queryFn: async () => {
-      const { data } = await axios.get(`/api/users/${userId}`, {
+      const { data } = await API.get(`/users/${userId}`, {
         withCredentials: true,
       });
       return data;
