@@ -1,18 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
-import { addUser } from '../utils/userSlice.js';
+import { addUser } from '../utils/userSlice';
 import { useNavigate } from 'react-router-dom';
-import { API_URL } from '../utils/constant.js';
+import { API_URL } from '../utils/constant';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Login = () => {
   const [emailId, setEmailId] = useState("mondric@gmail.com");
   const [password, setPassword] = useState("Mondric@123");
-  const [error, setError] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [isLoginForm, setIsloginForm] = useState(false);
+  const [error, setError] = useState("");
+  const [isLoginForm, setIsLoginForm] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -21,80 +21,54 @@ const Login = () => {
   const emailRef = useRef(null);
 
   useEffect(() => {
-    emailRef.current.focus();
+    emailRef.current?.focus();
   }, []);
 
-  const validateFirstName = (firstName) => {
-    return firstName.trim().length > 0;
-  };
-
-  const validateLastName = (lastName) => {
-    return lastName.trim().length > 0;
-  };
-
-  const validateEmail = (email) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  };
-
-  const validatePassword = (password) => {
-    return password.length >= 8;
-  };
+  // ✅ Validations
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validatePassword = (password) => password.length >= 8;
+  const validateFirstName = (text) => text.trim().length > 0;
+  const validateLastName = (text) => text.trim().length > 0;
 
   const handleLogin = async () => {
-    if (!validateEmail(emailId)) {
-      setError("Please enter a valid email address.");
-      return;
-    }
-    if (!validatePassword(password)) {
-      setError("Password must be at least 8 characters long.");
-      return;
-    }
-    if (loading) return;
+    setError("");
+    if (!validateEmail(emailId)) return setError("Please enter a valid email.");
+    if (!validatePassword(password)) return setError("Password must be at least 8 characters.");
+
     setLoading(true);
     try {
-      const res = await axios.post(API_URL + "/login", { emailId, password }, { withCredentials: true });
-      dispatch(addUser(res?.data));
-      navigate("/");
+      const res = await axios.post(`${API_URL}/login`, { emailId, password }, { withCredentials: true });
+      dispatch(addUser(res.data.user)); // 👈 only user info
+      navigate("/"); // or navigate("/profile");
     } catch (err) {
-      setError(err?.response?.data?.message || "An error occurred. Please try again.");
+      console.error("Login Error:", err);
+      setError(err.response?.data?.error || "Login failed");
     } finally {
       setLoading(false);
     }
   };
 
   const handleSignUp = async () => {
-    // Validate all fields
-    if (!validateFirstName(firstName)) {
-      setError("Please enter a valid first name.");
-      return;
-    }
-    if (!validateLastName(lastName)) {
-      setError("Please enter a valid last name.");
-      return;
-    }
-    if (!validateEmail(emailId)) {
-      setError("Please enter a valid email address.");
-      return;
-    }
-    if (!validatePassword(password)) {
-      setError("Password must be at least 8 characters long.");
-      return;
-    }
+    setError("");
+    if (!validateFirstName(firstName)) return setError("Enter valid first name.");
+    if (!validateLastName(lastName)) return setError("Enter valid last name.");
+    if (!validateEmail(emailId)) return setError("Please enter a valid email.");
+    if (!validatePassword(password)) return setError("Password must be at least 8 characters.");
 
-    // Proceed with API call
-    if (loading) return;
     setLoading(true);
     try {
-      const res = await axios.post(API_URL + "/signup", { firstName, lastName, emailId, password }, { withCredentials: true });
-      dispatch(addUser(res?.data?.data));
-      setFirstName("");
-      setLastName("");
-      setEmailId("");
-      setPassword("");
+      const res = await axios.post(`${API_URL}/signup`, {
+        firstName,
+        lastName,
+        emailId,
+        password,
+      }, { withCredentials: true });
+
+      dispatch(addUser(res.data.user)); // 👈 only user info
       navigate("/profile");
     } catch (err) {
-      setError(err?.response?.data?.message || "An error occurred. Please try again.");
+      console.error("Signup Error:", err);
+      setError(err.response?.data?.error || "Signup failed");
     } finally {
       setLoading(false);
     }
@@ -108,93 +82,87 @@ const Login = () => {
 
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
-      <div className="card w-96 shadow-xl bg-black sm:w-80">
-        <div className="card-body text-white">
-          <h2 className="card-title justify-center">{isLoginForm ? "Login" : "Sign Up"}</h2>
+      <div className="card w-96 shadow-xl bg-black text-white sm:w-80">
+        <div className="card-body">
+          <h2 className="text-center text-2xl font-bold mb-4">
+            {isLoginForm ? "Login" : "Sign Up"}
+          </h2>
 
+          {/* Sign Up Fields */}
           {!isLoginForm && (
-            <div>
-              <label className="form-control w-full max-w-xs">
-                <div className="label">
-                  <span className="label-text text-white">First Name:</span>
-                </div>
+            <>
+              <label className="form-control">
+                <span className="label-text text-white">First Name</span>
                 <input
                   type="text"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className="input input-bordered w-full max-w-xs text-black"
-                  aria-label="First Name"
+                  className="input input-bordered text-black"
                 />
               </label>
 
-              <label className="form-control w-full max-w-xs">
-                <div className="label">
-                  <span className="label-text text-white">Last Name:</span>
-                </div>
+              <label className="form-control">
+                <span className="label-text text-white">Last Name</span>
                 <input
                   type="text"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className="input input-bordered w-full max-w-xs text-black"
-                  aria-label="Last Name"
+                  className="input input-bordered text-black"
                 />
               </label>
-            </div>
+            </>
           )}
 
-          <label className="form-control w-full max-w-xs">
-            <div className="label">
-              <span className="label-text text-white">Email ID</span>
-            </div>
+          {/* Email */}
+          <label className="form-control">
+            <span className="label-text text-white">Email ID</span>
             <input
               type="text"
-              value={emailId}
-              onChange={(e) => {
-                setEmailId(e.target.value);
-                setError("");
-              }}
-              onKeyDown={handleKeyDown}
-              className="input input-bordered w-full max-w-xs text-black"
-              aria-label="Email ID"
               ref={emailRef}
+              value={emailId}
+              onChange={(e) => setEmailId(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="input input-bordered text-black"
             />
           </label>
 
-          <label className="form-control w-full max-w-xs relative">
-            <div className="label">
-              <span className="label-text text-white">Password</span>
-            </div>
+          {/* Password */}
+          <label className="form-control relative">
+            <span className="label-text text-white">Password</span>
             <input
-              className="input input-bordered w-full max-w-xs text-black pr-10"
               type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               onKeyDown={handleKeyDown}
-              aria-label="Password"
+              className="input input-bordered text-black pr-10"
             />
             <button
-              className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 cursor-pointer"
+              type="button"
+              className="absolute top-[34px] right-3 text-gray-500"
               onClick={() => setShowPassword(!showPassword)}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              aria-label="Toggle password visibility"
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </button>
           </label>
 
-          <p className="text-red-700">{error}</p>
-          <div className="card-actions justify-center">
-            <button
-              className="btn btn-primary"
-              onClick={isLoginForm ? handleLogin : handleSignUp}
-              disabled={loading}
-            >
-              {loading ? "Loading..." : isLoginForm ? "LogIn" : "Sign Up"}
-            </button>
-          </div>
-          <p className="cursor-pointer m-auto" onClick={() => setIsloginForm((value) => !value)}>
-            {isLoginForm ? "New User ? Sign Up" : "Existing User ? Login Here"}
+          {/* Error */}
+          {error && <p className="text-red-500 mt-2">{error}</p>}
+
+          {/* Submit */}
+          <button
+            onClick={isLoginForm ? handleLogin : handleSignUp}
+            disabled={loading}
+            className="btn btn-primary w-full mt-4"
+          >
+            {loading ? "Please wait..." : isLoginForm ? "Login" : "Sign Up"}
+          </button>
+
+          {/* Switch form */}
+          <p className="text-center mt-2 cursor-pointer" onClick={() => setIsLoginForm(!isLoginForm)}>
+            {isLoginForm ? "New user? Sign up here" : "Already registered? Login here"}
           </p>
         </div>
       </div>

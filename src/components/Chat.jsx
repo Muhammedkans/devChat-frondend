@@ -11,15 +11,16 @@ const Chat = () => {
   const [messages, setMessages] = useState([]);
   const { targetUserId } = useParams();
   const { data: user } = useMyProfile();
-  const { socket } = useSocket();
+  const { socket, isConnected } = useSocket();
   const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
 
-  // Auto scroll to bottom when message updates
+  // ✅ Scroll to bottom on new message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Fetch old chat messages
+  // ✅ Fetch chat messages
   useEffect(() => {
     const fetchChatMessage = async () => {
       try {
@@ -27,16 +28,14 @@ const Chat = () => {
           withCredentials: true,
         });
 
-        const chatMessage = res?.data?.messages.map((msg) => {
-          const { senderId, text } = msg;
-          return {
-            firstName: senderId?.firstName,
-            lastName: senderId?.lastName,
-            text,
-            userId: senderId?._id,
-            photoUrl: senderId?.photoUrl,
-          };
-        });
+        const chatMessage = res?.data?.messages.map((msg) => ({
+          firstName: msg.senderId?.firstName,
+          lastName: msg.senderId?.lastName,
+          text: msg.text,
+          userId: msg.senderId?._id,
+          photoUrl: msg.senderId?.photoUrl,
+          createdAt: msg.createdAt,
+        }));
 
         setMessages(chatMessage);
       } catch (err) {
@@ -47,24 +46,26 @@ const Chat = () => {
     fetchChatMessage();
   }, [targetUserId]);
 
-  // Real-time incoming message
+  // ✅ Join chat room & handle real-time messages
   useEffect(() => {
-    if (!socket || !user?._id) return;
+    if (socket && isConnected && user?._id && targetUserId) {
+      console.log("✅ Emitting userOnline & joining room...");
+      socket.emit("userOnline", user._id);
+      socket.emit("joinChat", { targetUserId });
 
-    socket.emit("joinChat", { targetUserId });
+      const handleReceiveMessage = (msg) => {
+        setMessages((prev) => [...prev, msg]);
+      };
 
-    const handleReceiveMessage = ({ firstName, lastName, text, userId, photoUrl }) => {
-      setMessages((prev) => [...prev, { firstName, lastName, text, userId, photoUrl }]);
-    };
+      socket.on("messageReceived", handleReceiveMessage);
 
-    socket.on("messageReceived", handleReceiveMessage);
+      return () => {
+        socket.off("messageReceived", handleReceiveMessage);
+      };
+    }
+  }, [socket, isConnected, user?._id, targetUserId]);
 
-    return () => {
-      socket.off("messageReceived", handleReceiveMessage);
-    };
-  }, [socket, user?._id, targetUserId]);
-
-  // Send message
+  // ✅ Send message
   const sendMessage = () => {
     if (!socket || !newMessage.trim()) return;
 
@@ -77,14 +78,20 @@ const Chat = () => {
     });
 
     setNewMessage('');
+    inputRef.current?.focus();
+  };
+
+  // ✅ Handle Enter key
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') sendMessage();
   };
 
   return (
     <div className="h-screen flex flex-col max-w-xl mx-auto border border-gray-300 rounded-lg shadow-md bg-white">
-      {/* Chat Header */}
+      {/* Header */}
       <ChatHeader userId={targetUserId} />
 
-      {/* Message list area */}
+      {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4">
         {messages.map((msg, index) => (
           <div
@@ -101,7 +108,9 @@ const Chat = () => {
             </div>
             <div className="chat-header font-medium text-sm">
               {msg.firstName} {msg.lastName}
-              <time className="text-xs opacity-50 ml-2">now</time>
+              <time className="text-xs opacity-50 ml-2">
+                {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString() : "now"}
+              </time>
             </div>
             <div className="chat-bubble">{msg.text}</div>
             <div className="chat-footer opacity-50 text-xs">Delivered</div>
@@ -110,11 +119,13 @@ const Chat = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Sticky Input Area */}
+      {/* Input */}
       <div className="sticky bottom-0 bg-white p-4 border-t border-gray-300 flex items-center gap-2">
         <input
+          ref={inputRef}
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
+          onKeyDown={handleKeyDown}
           type="text"
           className="flex-1 border border-gray-300 rounded-md p-2"
           placeholder="Type your message..."
@@ -131,6 +142,9 @@ const Chat = () => {
 };
 
 export default Chat;
+
+
+
 
 
 

@@ -1,11 +1,44 @@
+import { Loader2, UserPlus } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import usePostFeed from "../hooks/usePostFeed";
 import PostCard from "./PostCard";
-import { Loader2, UserPlus } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useSocket } from "../context/SocketContext";
+import { useQueryClient } from "@tanstack/react-query";
 
 const FeedPosts = () => {
-  const { data: posts = [], isLoading, isError } = usePostFeed();
+  const navigate = useNavigate();
+  const { data: posts = [], isLoading, isError, error } = usePostFeed(); // 👈 make sure error is returned
+  const { socket } = useSocket();
+  const queryClient = useQueryClient();
 
+  // ✅ Redirect if unauthorized
+  useEffect(() => {
+    if (error?.response?.status === 401) {
+      navigate("/login");
+    }
+  }, [error, navigate]);
+
+  // ✅ Listen for real-time post updates
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleLikeUpdate = (updatedPost) => {
+      queryClient.setQueryData(["posts"], (oldPosts = []) =>
+        oldPosts.map((post) =>
+          post._id === updatedPost._id ? updatedPost : post
+        )
+      );
+    };
+
+    socket.on("likeUpdated", handleLikeUpdate);
+
+    return () => {
+      socket.off("likeUpdated", handleLikeUpdate);
+    };
+  }, [socket, queryClient]);
+
+  // 🌀 Loading (will not block unauthorized users anymore)
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -15,6 +48,7 @@ const FeedPosts = () => {
     );
   }
 
+  // ❌ Error (other than 401)
   if (isError) {
     return (
       <div className="text-center mt-8 text-red-500 text-sm">
@@ -23,15 +57,12 @@ const FeedPosts = () => {
     );
   }
 
+  // 📭 Empty
   if (posts.length === 0) {
     return (
       <div className="flex flex-col items-center mt-16 text-center text-gray-500">
-        <p className="mb-4 text-lg font-medium">
-          Your feed is empty.
-        </p>
-        <p className="text-sm mb-6">
-          Follow other developers to see their posts here.
-        </p>
+        <p className="mb-4 text-lg font-medium">Your feed is empty.</p>
+        <p className="text-sm mb-6">Follow other developers to see their posts here.</p>
         <Link
           to="/explore-developers"
           className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition"
@@ -43,6 +74,7 @@ const FeedPosts = () => {
     );
   }
 
+  // ✅ Feed Display
   return (
     <div className="space-y-6">
       {posts.map((post) => (
@@ -55,6 +87,9 @@ const FeedPosts = () => {
 };
 
 export default FeedPosts;
+
+
+
 
 
 

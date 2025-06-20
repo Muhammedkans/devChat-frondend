@@ -11,30 +11,28 @@ import { Link } from "react-router-dom";
 
 const PostCard = ({ post }) => {
   const { data: myUser } = useMyProfile();
-  const { socket, isConnected } = useSocket();
+  const { socket } = useSocket();
   const queryClient = useQueryClient();
 
   const [showComments, setShowComments] = useState(false);
   const [likes, setLikes] = useState(post.likes || []);
   const hasLiked = myUser?._id && likes.includes(myUser._id);
 
+  // ✅ Listen for like update from socket
   useEffect(() => {
-    if (!socket || typeof socket.on !== "function") {
-      console.warn("❌ Socket not initialized properly in PostCard.");
-      return;
-    }
+    if (!socket) return;
 
     const handleLikeUpdate = ({ postId, userId, action }) => {
       if (postId !== post._id) return;
 
-      setLikes((prev) => {
-        if (action === "like" && !prev.includes(userId)) {
-          return [...prev, userId];
+      setLikes((prevLikes) => {
+        if (action === "like" && !prevLikes.includes(userId)) {
+          return [...prevLikes, userId];
         }
         if (action === "unlike") {
-          return prev.filter((id) => id !== userId);
+          return prevLikes.filter((id) => id !== userId);
         }
-        return prev;
+        return prevLikes;
       });
     };
 
@@ -45,11 +43,12 @@ const PostCard = ({ post }) => {
     };
   }, [socket, post._id]);
 
+  // ✅ Like/Unlike logic
   const likeMutation = useMutation({
     mutationFn: ({ hasLiked }) =>
       hasLiked ? unlikePost(post._id) : likePost(post._id),
     onSuccess: (_, variables) => {
-      if (socket && typeof socket.emit === "function") {
+      if (socket) {
         socket.emit("likeUpdate", {
           postId: post._id,
           userId: myUser._id,
@@ -57,6 +56,9 @@ const PostCard = ({ post }) => {
         });
       }
       queryClient.invalidateQueries(["posts"]);
+    },
+    onError: () => {
+      queryClient.invalidateQueries(["posts"]); // Revert if error
     },
   });
 
@@ -76,7 +78,10 @@ const PostCard = ({ post }) => {
     <div className="border rounded-lg bg-white shadow-sm mb-6">
       {/* Post Header */}
       <div className="flex items-center justify-between px-4 py-3">
-        <Link to={profileLink} className="flex items-center gap-3 hover:bg-gray-50 p-2 rounded">
+        <Link
+          to={profileLink}
+          className="flex items-center gap-3 hover:bg-gray-50 p-2 rounded"
+        >
           <img
             src={post.user?.photoUrl}
             alt="User"
@@ -84,13 +89,17 @@ const PostCard = ({ post }) => {
           />
           <div>
             <p className="font-semibold text-sm">{post.user?.firstName}</p>
-            <p className="text-xs text-gray-500">{post.createdAt?.slice(0, 10)}</p>
+            <p className="text-xs text-gray-500">
+              {post.createdAt?.slice(0, 10)}
+            </p>
           </div>
         </Link>
       </div>
 
       {/* Post Content */}
-      {post.contentText && <p className="px-4 text-sm mb-2">{post.contentText}</p>}
+      {post.contentText && (
+        <p className="px-4 text-sm mb-2">{post.contentText}</p>
+      )}
       {post.contentImageUrl && (
         <img
           src={post.contentImageUrl}
@@ -128,6 +137,7 @@ const PostCard = ({ post }) => {
 };
 
 export default PostCard;
+
 
 
 
