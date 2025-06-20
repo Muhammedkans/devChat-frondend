@@ -10,31 +10,36 @@ const CommentList = ({ postId }) => {
     queryFn: () => fetchComments(postId),
   });
 
-  const [comments, setComments] = useState(initialComments);
-  const socket = useSocket(); // ✅
+  const { socket } = useSocket(); // ✅ FIXED
 
+  const [comments, setComments] = useState([]);
+
+  // ✅ Set initial comments on load
   useEffect(() => {
     setComments(initialComments);
   }, [initialComments]);
 
+  // ✅ Socket listener for newComment
   useEffect(() => {
+    if (!socket) return;
+
     const handleNewComment = (incoming) => {
       if (incoming.postId === postId) {
         setComments((prev) => [incoming.comment, ...prev]);
       }
     };
 
-    socket?.on("newComment", handleNewComment); // ✅
+    socket.on("newComment", handleNewComment);
 
     return () => {
-      socket?.off("newComment", handleNewComment); // ✅ cleanup
+      socket.off("newComment", handleNewComment); // Cleanup
     };
   }, [socket, postId]);
 
-  if (isLoading) return <p>Loading comments...</p>;
+  if (isLoading) return <p className="text-sm text-gray-500">Loading comments...</p>;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 mt-4">
       {comments.map((comment) => (
         <CommentItem key={comment._id} comment={comment} />
       ))}
@@ -43,6 +48,7 @@ const CommentList = ({ postId }) => {
 };
 
 export default CommentList;
+
 
 
 
