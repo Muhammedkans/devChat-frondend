@@ -1,3 +1,4 @@
+// src/pages/Chat.jsx
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -15,20 +16,17 @@ const Chat = () => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  // ✅ Scroll to bottom on new message
+  // ✅ Scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // ✅ Fetch chat messages
+  // ✅ Fetch old messages
   useEffect(() => {
-    const fetchChatMessage = async () => {
+    const fetchMessages = async () => {
       try {
-        const res = await axios.get(`${API_URL}/chat/${targetUserId}`, {
-          withCredentials: true,
-        });
-
-        const chatMessage = res?.data?.messages.map((msg) => ({
+        const res = await axios.get(`${API_URL}/chat/${targetUserId}`, { withCredentials: true });
+        const chatMessages = res?.data?.messages.map((msg) => ({
           firstName: msg.senderId?.firstName,
           lastName: msg.senderId?.lastName,
           text: msg.text,
@@ -36,38 +34,32 @@ const Chat = () => {
           photoUrl: msg.senderId?.photoUrl,
           createdAt: msg.createdAt,
         }));
-
-        setMessages(chatMessage);
+        setMessages(chatMessages);
       } catch (err) {
         console.error("❌ Failed to fetch chat:", err.message);
       }
     };
-
-    fetchChatMessage();
+    fetchMessages();
   }, [targetUserId]);
 
-  // ✅ Join chat room & handle real-time messages
+  // ✅ Join room and listen to messages
   useEffect(() => {
-    if (socket && isConnected && user?._id && targetUserId) {
-      console.log("✅ Emitting userOnline & joining room...");
-      socket.emit("userOnline", user._id);
-      socket.emit("joinChat", { targetUserId });
+    if (!socket || !isConnected || !user?._id || !targetUserId) return;
 
-      const handleReceiveMessage = (msg) => {
-        setMessages((prev) => [...prev, msg]);
-      };
+    socket.emit("joinChat", { targetUserId });
 
-      socket.on("messageReceived", handleReceiveMessage);
+    const handleReceiveMessage = (msg) => {
+      setMessages((prev) => [...prev, msg]);
+    };
 
-      return () => {
-        socket.off("messageReceived", handleReceiveMessage);
-      };
-    }
+    socket.on("messageReceived", handleReceiveMessage);
+    return () => {
+      socket.off("messageReceived", handleReceiveMessage);
+    };
   }, [socket, isConnected, user?._id, targetUserId]);
 
-  // ✅ Send message
   const sendMessage = () => {
-    if (!socket || !newMessage.trim()) return;
+    if (!newMessage.trim()) return;
 
     socket.emit("sendMessage", {
       targetUserId,
@@ -81,17 +73,14 @@ const Chat = () => {
     inputRef.current?.focus();
   };
 
-  // ✅ Handle Enter key
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') sendMessage();
   };
 
   return (
     <div className="h-screen flex flex-col max-w-xl mx-auto border border-gray-300 rounded-lg shadow-md bg-white">
-      {/* Header */}
       <ChatHeader userId={targetUserId} />
 
-      {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4">
         {messages.map((msg, index) => (
           <div
@@ -119,7 +108,6 @@ const Chat = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
       <div className="sticky bottom-0 bg-white p-4 border-t border-gray-300 flex items-center gap-2">
         <input
           ref={inputRef}
@@ -130,10 +118,7 @@ const Chat = () => {
           className="flex-1 border border-gray-300 rounded-md p-2"
           placeholder="Type your message..."
         />
-        <button
-          onClick={sendMessage}
-          className="bg-blue-500 text-white px-4 py-2 rounded-md"
-        >
+        <button onClick={sendMessage} className="bg-blue-500 text-white px-4 py-2 rounded-md">
           Send
         </button>
       </div>
@@ -142,6 +127,8 @@ const Chat = () => {
 };
 
 export default Chat;
+
+
 
 
 

@@ -18,7 +18,7 @@ const PostCard = ({ post }) => {
   const [likes, setLikes] = useState(post.likes || []);
   const hasLiked = myUser?._id && likes.includes(myUser._id);
 
-  // ✅ Listen for like update from socket
+  // ✅ Listen for likeUpdate (lightweight real-time like count update)
   useEffect(() => {
     if (!socket) return;
 
@@ -43,31 +43,47 @@ const PostCard = ({ post }) => {
     };
   }, [socket, post._id]);
 
-  // ✅ Like/Unlike logic
+  // ✅ Like/Unlike mutation
   const likeMutation = useMutation({
     mutationFn: ({ hasLiked }) =>
       hasLiked ? unlikePost(post._id) : likePost(post._id),
     onSuccess: (_, variables) => {
-      if (socket) {
+      if (socket && myUser?._id) {
+        // ✅ Emit like/unlike
         socket.emit("likeUpdate", {
           postId: post._id,
           userId: myUser._id,
           action: variables.hasLiked ? "unlike" : "like",
         });
+
+        // ✅ Emit full updated post to FeedPosts
+        const updatedLikes = variables.hasLiked
+          ? post.likes.filter((id) => id !== myUser._id)
+          : [...post.likes, myUser._id];
+
+        socket.emit("likeUpdated", {
+          ...post,
+          likes: updatedLikes,
+        });
       }
+
+      // Optional: Refetch in case socket fails (safe fallback)
       queryClient.invalidateQueries(["posts"]);
     },
     onError: () => {
-      queryClient.invalidateQueries(["posts"]); // Revert if error
+      // Rollback fallback
+      queryClient.invalidateQueries(["posts"]);
     },
   });
 
   const handleLike = () => {
     if (!myUser?._id) return;
+
     const liked = likes.includes(myUser._id);
     setLikes((prev) =>
       liked ? prev.filter((id) => id !== myUser._id) : [...prev, myUser._id]
     );
+
     likeMutation.mutate({ hasLiked: liked });
   };
 
@@ -137,6 +153,7 @@ const PostCard = ({ post }) => {
 };
 
 export default PostCard;
+
 
 
 

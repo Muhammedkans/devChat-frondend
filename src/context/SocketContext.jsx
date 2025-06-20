@@ -1,72 +1,72 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+// src/context/SocketContext.jsx
+import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
-import SOCKET_URL from "../api/socketUrl"; // ✅ Your backend socket URL
-import useMyProfile from "../hooks/useMyProfile"; // ✅ Fetch logged-in user info
+import SOCKET_URL from "../api/socketUrl";
+import useMyProfile from "../hooks/useMyProfile";
 
 const SocketContext = createContext();
 
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
-  const [isConnected, setIsConnected] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState([]);
-  const { data: user } = useMyProfile(); // ✅ Logged-in user
+  const [isConnected, setIsConnected] = useState(false);
+  const { data: user } = useMyProfile();
 
-  // ✅ Connect socket when component mounts
+  const socketRef = useRef(null); // ✅ to persist socket instance
+
+  // ✅ Connect socket only after login (when user available)
   useEffect(() => {
-    const newSocket = io(SOCKET_URL, {
-      withCredentials: true,
-      transports: ["websocket"],
-      reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 500,
-      reconnectionDelayMax: 2000,
-      timeout: 5000,
-    });
+    if (user?._id && !socketRef.current) {
+      const newSocket = io(SOCKET_URL, {
+        withCredentials: true,
+        autoConnect: false, // ❗️ important
+        transports: ["websocket"],
+        reconnection: true,
+      });
 
-    setSocket(newSocket);
+      socketRef.current = newSocket;
+      setSocket(newSocket);
 
-    newSocket.on("connect", () => {
-      console.log("✅ Socket connected");
-      setIsConnected(true);
-    });
+      newSocket.connect(); // ✅ manually connect after login
 
-    newSocket.on("disconnect", (reason) => {
-      console.warn("❌ Socket disconnected:", reason);
-      setIsConnected(false);
-    });
+      newSocket.on("connect", () => {
+        console.log("✅ Socket connected after login");
+        setIsConnected(true);
+      });
 
-    newSocket.on("updateOnlineUsers", (users) => {
-      setOnlineUsers(users); // 📡 Store online users
-    });
+      newSocket.on("disconnect", () => {
+        console.log("❌ Socket disconnected");
+        setIsConnected(false);
+      });
 
-    return () => {
-      newSocket.disconnect();
-    };
-  }, []);
-
-  // ✅ Emit "userOnline" only when socket is connected and user is available
-  useEffect(() => {
-    if (socket && isConnected && user?._id) {
-      console.log("📡 Emitting userOnline:", user._id);
-      socket.emit("userOnline", user._id);
+      newSocket.on("updateOnlineUsers", (users) => {
+        setOnlineUsers(users);
+      });
     }
-  }, [socket, isConnected, user?._id]);
+  }, [user?._id]);
+
+  // ✅ Re-emit userOnline after connect
+  useEffect(() => {
+    if (socketRef.current && isConnected && user?._id) {
+      socketRef.current.emit("userOnline", user._id);
+    }
+  }, [isConnected, user?._id]);
 
   return (
-    <SocketContext.Provider value={{ socket, isConnected, onlineUsers }}>
+    <SocketContext.Provider value={{ socket: socketRef.current, isConnected, onlineUsers }}>
       {children}
-    </SocketContext.Provider>
+    </SocketContext.Provider> 
   );
 };
 
-// ✅ Custom hook to use socket
 export const useSocket = () => {
   const context = useContext(SocketContext);
-  if (!context) {
-    throw new Error("useSocket must be used within a SocketProvider");
-  }
+  if (!context) throw new Error("useSocket must be used within a SocketProvider");
   return context;
 };
+
+
+
 
 
 
