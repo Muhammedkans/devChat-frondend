@@ -4,20 +4,23 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { API_URL } from "../utils/constant";
 import { removeUser } from "../utils/userSlice";
-import { useQueryClient } from "@tanstack/react-query"; // ✅ Import this
+import { useQueryClient } from "@tanstack/react-query";
+import { useSocket } from "../context/SocketContext"; // ✅ Import socket context
 
 const Navbar = () => {
   const user = useSelector((store) => store.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const queryClient = useQueryClient(); // ✅ Add this
+  const queryClient = useQueryClient();
+  const { disconnectSocket } = useSocket(); // ✅ Get disconnectSocket function
 
   const handleLogout = async () => {
     try {
       await axios.post(API_URL + "/logout", {}, { withCredentials: true });
-      dispatch(removeUser());
-      queryClient.clear(); // ✅ Clear react-query cache
-      navigate("/login");
+      dispatch(removeUser());        // 🧹 Clear Redux user
+      disconnectSocket();            // ✅ Disconnect socket
+      queryClient.clear();           // 🧹 Clear React Query cache
+      navigate("/login");            // 🔁 Redirect
     } catch (err) {
       console.error("Logout failed:", err);
     }
@@ -77,3 +80,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+

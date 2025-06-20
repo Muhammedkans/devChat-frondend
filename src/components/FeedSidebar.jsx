@@ -1,4 +1,3 @@
-// src/components/FeedSidebar.jsx
 import axios from "axios";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -7,12 +6,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import useMyProfile from "../hooks/useMyProfile";
 import { API_URL } from "../utils/constant";
 import { removeUser } from "../utils/userSlice";
+import { useSocket } from "../context/SocketContext"; // ✅ Import socket context
 
 const FeedSidebar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: user, isLoading, isError, error } = useMyProfile();
+  const { disconnectSocket } = useSocket(); // ✅ use disconnect function
 
   // ✅ If not authorized, go to login
   useEffect(() => {
@@ -31,9 +32,10 @@ const FeedSidebar = () => {
   const handleLogout = async () => {
     try {
       await axios.post(`${API_URL}/logout`, {}, { withCredentials: true });
-      dispatch(removeUser()); // 🧹 Clear Redux state
-      queryClient.clear();    // 🧹 Clear React Query cache
-      navigate("/login");     // 🔁 Redirect to login
+      dispatch(removeUser());         // 🧹 Clear Redux state
+      disconnectSocket();             // ✅ Disconnect socket on logout
+      queryClient.clear();            // 🧹 Optional: clear cache
+      navigate("/login");             // 🔁 Redirect to login
     } catch (err) {
       console.error("Logout failed", err);
     }
@@ -57,5 +59,6 @@ const FeedSidebar = () => {
 };
 
 export default FeedSidebar;
+
 
 
