@@ -16,9 +16,11 @@ const PostCard = ({ post }) => {
 
   const [showComments, setShowComments] = useState(false);
   const [likes, setLikes] = useState(post.likes || []);
+  const [commentCount, setCommentCount] = useState(post.commentCount || 0);
+
   const hasLiked = myUser?._id && likes.includes(myUser._id);
 
-  // ✅ Listen for likeUpdate (lightweight real-time like count update)
+  // ✅ Listen for like updates (real-time)
   useEffect(() => {
     if (!socket) return;
 
@@ -43,20 +45,35 @@ const PostCard = ({ post }) => {
     };
   }, [socket, post._id]);
 
+  // ✅ Listen for comment count updates (real-time)
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleCommentCountUpdate = ({ postId, commentCount }) => {
+      if (postId === post._id) {
+        setCommentCount(commentCount);
+      }
+    };
+
+    socket.on("commentCountUpdate", handleCommentCountUpdate);
+
+    return () => {
+      socket.off("commentCountUpdate", handleCommentCountUpdate);
+    };
+  }, [socket, post._id]);
+
   // ✅ Like/Unlike mutation
   const likeMutation = useMutation({
     mutationFn: ({ hasLiked }) =>
       hasLiked ? unlikePost(post._id) : likePost(post._id),
     onSuccess: (_, variables) => {
       if (socket && myUser?._id) {
-        // ✅ Emit like/unlike
         socket.emit("likeUpdate", {
           postId: post._id,
           userId: myUser._id,
           action: variables.hasLiked ? "unlike" : "like",
         });
 
-        // ✅ Emit full updated post to FeedPosts
         const updatedLikes = variables.hasLiked
           ? post.likes.filter((id) => id !== myUser._id)
           : [...post.likes, myUser._id];
@@ -67,11 +84,9 @@ const PostCard = ({ post }) => {
         });
       }
 
-      // Optional: Refetch in case socket fails (safe fallback)
       queryClient.invalidateQueries(["posts"]);
     },
     onError: () => {
-      // Rollback fallback
       queryClient.invalidateQueries(["posts"]);
     },
   });
@@ -138,7 +153,7 @@ const PostCard = ({ post }) => {
         <button onClick={() => setShowComments((s) => !s)}>
           <FaRegComment className="text-2xl" />
         </button>
-        <span className="text-sm">{post.comments?.length || 0}</span>
+        <span className="text-sm">{commentCount}</span>
       </div>
 
       {/* Comments */}
@@ -153,6 +168,7 @@ const PostCard = ({ post }) => {
 };
 
 export default PostCard;
+
 
 
 

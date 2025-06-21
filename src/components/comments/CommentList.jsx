@@ -2,37 +2,47 @@ import React, { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchComments } from "../../api/comments";
 import CommentItem from "./CommentItem";
-import { useSocket } from "../../context/SocketContext"; // ✅
+import { useSocket } from "../../context/SocketContext";
 
 const CommentList = ({ postId }) => {
-  const { data: initialComments = [], isLoading } = useQuery({
+  const { socket } = useSocket();
+
+  const [comments, setComments] = useState([]);
+
+  // ✅ Initial comment fetch using React Query
+  const {
+    data: fetchedComments = [],
+    isLoading,
+    isSuccess,
+  } = useQuery({
     queryKey: ["comments", postId],
     queryFn: () => fetchComments(postId),
   });
 
-  const { socket } = useSocket(); // ✅ FIXED
-
-  const [comments, setComments] = useState([]);
-
-  // ✅ Set initial comments on load
+  // ✅ Set fetched comments ONLY once when data is loaded successfully
   useEffect(() => {
-    setComments(initialComments);
-  }, [initialComments]);
+    if (isSuccess) {
+      setComments(fetchedComments); // This will run only once per fetch
+    }
+  }, [isSuccess, fetchedComments]);
 
-  // ✅ Socket listener for newComment
+  // ✅ Socket handler for new comments
   useEffect(() => {
     if (!socket) return;
 
     const handleNewComment = (incoming) => {
       if (incoming.postId === postId) {
-        setComments((prev) => [incoming.comment, ...prev]);
+        setComments((prev) => {
+          const exists = prev.some((c) => c._id === incoming.comment._id);
+          if (exists) return prev;
+          return [incoming.comment, ...prev];
+        });
       }
     };
 
     socket.on("newComment", handleNewComment);
-
     return () => {
-      socket.off("newComment", handleNewComment); // Cleanup
+      socket.off("newComment", handleNewComment);
     };
   }, [socket, postId]);
 
