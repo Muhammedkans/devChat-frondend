@@ -13,40 +13,44 @@ export const SocketProvider = ({ children }) => {
 
   const socketRef = useRef(null);
 
-  // ✅ Connect socket after login only
   useEffect(() => {
+    // ✅ Initialize socket only once after user login
     if (user?._id && !socketRef.current) {
       const newSocket = io(SOCKET_URL, {
         withCredentials: true,
         autoConnect: false,
-        transports: ["websocket"],
+        transports: ["websocket"], // Use websocket only
         reconnection: true,
         reconnectionAttempts: 5,
-        reconnectionDelay: 500,
+        reconnectionDelay: 300, // ✅ Reduced delay for faster reconnection
       });
 
       socketRef.current = newSocket;
       setSocket(newSocket);
 
+      // ✅ Now connect
       newSocket.connect();
 
+      // ✅ On connected
       newSocket.on("connect", () => {
-        console.log("✅ Socket connected after login");
+        console.log("✅ Socket connected:", newSocket.id);
         setIsConnected(true);
       });
 
-      newSocket.on("disconnect", () => {
-        console.log("❌ Socket disconnected");
+      // ✅ On disconnected
+      newSocket.on("disconnect", (reason) => {
+        console.log("❌ Socket disconnected:", reason);
         setIsConnected(false);
       });
 
+      // ✅ On receiving updated online users
       newSocket.on("updateOnlineUsers", (users) => {
         setOnlineUsers(users);
       });
     }
   }, [user?._id]);
 
-  // ✅ Re-emit online status after connect
+  // ✅ When connected and user is known, emit "userOnline"
   useEffect(() => {
     if (socketRef.current && isConnected && user?._id) {
       console.log("📡 Emitting userOnline:", user._id);
@@ -54,10 +58,22 @@ export const SocketProvider = ({ children }) => {
     }
   }, [isConnected, user?._id]);
 
-  // ✅ Manual disconnect function (use on logout)
+  // ✅ Optional: reconnect on tab focus (Instagram does this)
+  useEffect(() => {
+    const reconnectOnFocus = () => {
+      if (socketRef.current && !socketRef.current.connected) {
+        socketRef.current.connect();
+        console.log("🔁 Reconnecting on window focus...");
+      }
+    };
+
+    window.addEventListener("focus", reconnectOnFocus);
+    return () => window.removeEventListener("focus", reconnectOnFocus);
+  }, []);
+
+  // ✅ Manual disconnect (on logout)
   const disconnectSocket = () => {
     if (socketRef.current) {
-      console.log("❌ Disconnecting socket manually (e.g., logout)");
       socketRef.current.disconnect();
       socketRef.current = null;
       setSocket(null);
@@ -72,7 +88,7 @@ export const SocketProvider = ({ children }) => {
         socket: socketRef.current,
         isConnected,
         onlineUsers,
-        disconnectSocket, // ✅ Export this to use in logout
+        disconnectSocket,
       }}
     >
       {children}
@@ -86,6 +102,7 @@ export const useSocket = () => {
   if (!context) throw new Error("useSocket must be used within a SocketProvider");
   return context;
 };
+
 
 
 

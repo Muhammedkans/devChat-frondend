@@ -1,4 +1,3 @@
-// src/pages/Chat.jsx
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -16,16 +15,19 @@ const Chat = () => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  // ✅ Scroll to bottom when new messages arrive
+  // ✅ Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // ✅ Fetch old messages
+  // ✅ Fetch previous messages
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const res = await axios.get(`${API_URL}/chat/${targetUserId}`, { withCredentials: true });
+        const res = await axios.get(`${API_URL}/chat/${targetUserId}`, {
+          withCredentials: true,
+        });
+
         const chatMessages = res?.data?.messages.map((msg) => ({
           firstName: msg.senderId?.firstName,
           lastName: msg.senderId?.lastName,
@@ -34,40 +36,45 @@ const Chat = () => {
           photoUrl: msg.senderId?.photoUrl,
           createdAt: msg.createdAt,
         }));
+
         setMessages(chatMessages);
       } catch (err) {
-        console.error("❌ Failed to fetch chat:", err.message);
+        console.error('❌ Failed to fetch chat:', err.message);
       }
     };
+
     fetchMessages();
   }, [targetUserId]);
 
-  // ✅ Join room and listen to messages
+  // ✅ Real-time message receive (including sender)
   useEffect(() => {
     if (!socket || !isConnected || !user?._id || !targetUserId) return;
 
-    socket.emit("joinChat", { targetUserId });
+    socket.emit('joinChat', { targetUserId });
 
     const handleReceiveMessage = (msg) => {
       setMessages((prev) => [...prev, msg]);
     };
 
-    socket.on("messageReceived", handleReceiveMessage);
+    socket.on('messageReceived', handleReceiveMessage);
+
     return () => {
-      socket.off("messageReceived", handleReceiveMessage);
+      socket.off('messageReceived', handleReceiveMessage);
     };
   }, [socket, isConnected, user?._id, targetUserId]);
 
+  // ✅ Send message
   const sendMessage = () => {
-    if (!newMessage.trim()) return;
+    const trimmed = newMessage.trim();
+    if (!trimmed) return;
 
-    socket.emit("sendMessage", {
+    const messagePayload = {
       targetUserId,
-      text: newMessage.trim(),
-      firstName: user.firstName,
-      lastName: user.lastName,
-      photoUrl: user.photoUrl,
-    });
+      text: trimmed,
+    };
+
+    // ✅ Don't push manually, let server send via socket
+    socket.emit('sendMessage', messagePayload);
 
     setNewMessage('');
     inputRef.current?.focus();
@@ -81,24 +88,32 @@ const Chat = () => {
     <div className="h-screen flex flex-col max-w-xl mx-auto border border-gray-300 rounded-lg shadow-md bg-white">
       <ChatHeader userId={targetUserId} />
 
+      {/* ✅ Messages list */}
       <div className="flex-1 overflow-y-auto p-4">
         {messages.map((msg, index) => (
           <div
             key={index}
-            className={`chat ${user._id === msg.userId ? "chat-end" : "chat-start"} mb-4`}
+            className={`chat ${
+              user._id === msg.userId ? 'chat-end' : 'chat-start'
+            } mb-4`}
           >
             <div className="chat-image avatar">
               <div className="w-10 h-10 rounded-full">
                 <img
                   alt="Profile"
-                  src={msg.photoUrl || "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"}
+                  src={
+                    msg.photoUrl ||
+                    'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'
+                  }
                 />
               </div>
             </div>
             <div className="chat-header font-medium text-sm">
               {msg.firstName} {msg.lastName}
               <time className="text-xs opacity-50 ml-2">
-                {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString() : "now"}
+                {msg.createdAt
+                  ? new Date(msg.createdAt).toLocaleTimeString()
+                  : 'now'}
               </time>
             </div>
             <div className="chat-bubble">{msg.text}</div>
@@ -108,6 +123,7 @@ const Chat = () => {
         <div ref={messagesEndRef} />
       </div>
 
+      {/* ✅ Input field */}
       <div className="sticky bottom-0 bg-white p-4 border-t border-gray-300 flex items-center gap-2">
         <input
           ref={inputRef}
@@ -118,7 +134,10 @@ const Chat = () => {
           className="flex-1 border border-gray-300 rounded-md p-2"
           placeholder="Type your message..."
         />
-        <button onClick={sendMessage} className="bg-blue-500 text-white px-4 py-2 rounded-md">
+        <button
+          onClick={sendMessage}
+          className="bg-blue-500 text-white px-4 py-2 rounded-md"
+        >
           Send
         </button>
       </div>
@@ -127,6 +146,14 @@ const Chat = () => {
 };
 
 export default Chat;
+
+
+
+
+
+
+
+
 
 
 
