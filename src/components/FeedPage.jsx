@@ -6,6 +6,9 @@ import DeveloperSuggestions from './DeveloperSuggestions';
 import FeedSidebar from './FeedSidebar';
 import useMyProfile from '../hooks/useMyProfile';
 import { useSelector } from 'react-redux'; // ✅
+import CreatePost from './CreatePost';
+import UserSearchBar from './UserSearchbar';
+
 
 const FeedPage = () => {
   const navigate = useNavigate();
@@ -33,9 +36,12 @@ const FeedPage = () => {
   return (
     <div className="flex justify-center min-h-screen bg-gray-50">
       <div className="w-1/4 border-r p-4">
+      
         <FeedSidebar />
       </div>
       <div className="w-2/4 p-4">
+      <UserSearchBar/>
+        <CreatePost/>
         <FeedPosts />
       </div>
       <div className="w-1/4 border-l p-4">
