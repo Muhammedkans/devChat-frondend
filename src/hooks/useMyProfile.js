@@ -10,6 +10,9 @@ const useMyProfile = () => {
       console.log(res.data.data);
       return res.data.data;
     },
+    onSuccess:() =>{
+      queryClient.invalidateQueries(['my-profile']);
+    }
   });
 };
 

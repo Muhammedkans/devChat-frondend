@@ -1,78 +1,109 @@
-import axios from 'axios'
-import React, { useEffect } from 'react'
-import { API_URL } from '../utils/constant'
-import { useDispatch, useSelector } from 'react-redux'
-import { addRequests, removeRequests } from '../utils/requestSlice'
-
+import axios from 'axios';
+import React, { useEffect } from 'react';
+import { API_URL } from '../utils/constant';
+import { useDispatch, useSelector } from 'react-redux';
+import { addRequests, removeRequests } from '../utils/requestSlice';
+import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const Requests = () => {
   const dispatch = useDispatch();
+  const requests = useSelector((store) => store.requests);
 
-  const requestConnection = useSelector((store)=> store.requests)
-   
-  const revieRequest = async(status, _id)=>{
-     try{
-      const res = await axios.post(API_URL+  "/request/review/" +  status + "/" + _id,{},{withCredentials:true});
+  // ✅ Fetch friend requests
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const res = await axios.get(API_URL + "/request/review/recieved", {
+          withCredentials: true,
+        });
+        dispatch(addRequests(res.data.data));
+      } catch (err) {
+        console.error("Failed to fetch requests", err);
+      }
+    };
+    fetchRequests();
+  }, [dispatch]);
 
-      dispatch(removeRequests(_id));
-     
-     }catch(err){
-
-     } 
-  }
-
-  const requestFetch = async()=>{
-    try{
-      const res = await axios.get(API_URL + "/request/review/recieved",{withCredentials:true});
-    dispatch(addRequests(res?.data.data))
-    
-    }catch(err){
-      console.log(err.response.data)
+  // ✅ Accept / Reject handler with toast
+  const handleReview = async (status, requestId) => {
+    try {
+      await axios.post(`${API_URL}/request/review/${status}/${requestId}`, {}, {
+        withCredentials: true,
+      });
+      dispatch(removeRequests(requestId));
+      toast.success(`Request ${status}`);
+    } catch (err) {
+      toast.error("Failed to update request");
+      console.error("Review failed", err);
     }
-    
+  };
+
+  if (!requests) return null;
+  if (requests.length === 0) {
+    return (
+      <div className="text-center text-2xl mt-10 text-gray-400">
+        No Friend Requests Found
+      </div>
+    );
   }
 
-  useEffect(()=>{
-   requestFetch();
-  },[]);
-
-   if(!requestConnection) return 
-
-   
-  if(requestConnection.length === 0){
-    return <div className='text-center text-bold text-2xl'>No Users found</div>;
-  } 
   return (
-    <div className='text-center my-10'>
-         
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      <h2 className="text-3xl font-bold mb-6 text-center text-white">Friend Requests</h2>
 
-         <h1 className='font-bold text-3xl'>My Friends</h1>
-         
-        
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {requests
+          .filter((req) => req?.fromUserId && req._id)
+          .map((req) => {
+            const user = req.fromUserId;
+            return (
+              <div
+                key={req._id}
+                className="bg-gray-900 text-white p-4 rounded-xl shadow-md flex items-center gap-4"
+              >
+                <img
+                  src={user.photoUrl}
+                  alt="profile"
+                  className="w-16 h-16 rounded-full object-cover border-2 border-pink-500"
+                />
 
-        {requestConnection.filter((request)=> request.fromUserId && request._id ).map((requests)=> {
-          const {firstName,lastName,_id, photoUrl,age,gender,about} = requests.fromUserId;
-         return  (<div key={_id}className='flex justify-between items-center text-black m-4 p-4 bg-base-300 flex w-1/2 mx-auto '>
-                  <div className=''> <img   className='w-20 h-20 rounded-full '  src={photoUrl}/> 
-                  
-                  </div>
+                <div className="flex-1">
+                  <Link to={`/users/${user._id}`} className="block">
+                    <h3 className="text-lg font-semibold">
+                      {user.firstName} {user.lastName}
+                    </h3>
+                    <p className="text-sm text-gray-400">{user.about || "No bio available"}</p>
+                    {user.age && user.gender && (
+                      <p className="text-xs text-gray-500">
+                        {user.age} years old, {user.gender}
+                      </p>
+                    )}
+                  </Link>
+                </div>
 
-                  <div className='text-left mx-4'>
-                  
-                  <h2 className='font-bold '>{firstName} {lastName}</h2>
-                  <p>{about}</p>
-                 </div>
-                    <div > 
-
-                    <button className="btn btn-primary mx-2" onClick={()=>revieRequest("rejected",requests._id)}>Reject</button>
-                    <button className="btn btn-secondary mx-2" onClick={()=>revieRequest("accepted",requests._id)}>Accept</button>
-                    </div>
-                  </div>)
+                <div className="flex flex-col gap-2">
+                  <button
+                    onClick={() => handleReview("rejected", req._id)}
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-1 rounded-full text-sm"
+                  >
+                    Reject
+                  </button>
+                  <button
+                    onClick={() => handleReview("accepted", req._id)}
+                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded-full text-sm"
+                  >
+                    Accept
+                  </button>
+                </div>
+              </div>
+            );
           })}
+      </div>
     </div>
-  )
-}
-  
+  );
+};
+
+export default Requests;
 
 
-export default Requests
