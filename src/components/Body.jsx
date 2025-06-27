@@ -1,6 +1,4 @@
-// src/components/Body.jsx
-
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
@@ -16,34 +14,45 @@ const Body = () => {
   const location = useLocation();
   const userData = useSelector((store) => store.user);
 
-  const fetchUser = async () => {
-    try {
-      if (userData) return;
-
-      const res = await axios.get(API_URL + "/profile/view", {
-        withCredentials: true,
-      });
-
-      dispatch(addUser(res?.data));
-    } catch (err) {
-      if (err?.response?.status === 401) {
-        return navigate("/login");
-      }
-    }
-  };
+  const [loadingUser, setLoadingUser] = useState(false);
+  const isChatPage = location.pathname.startsWith("/chat");
 
   useEffect(() => {
-    fetchUser();
-  }, []);
+    const fetchUser = async () => {
+      try {
+        if (userData) return;
 
-  const isChatPage = location.pathname.startsWith("/chat");
+        setLoadingUser(true);
+        const res = await axios.get(`${API_URL}/profile/view`, {
+          withCredentials: true,
+        });
+        dispatch(addUser(res?.data));
+      } catch (err) {
+        if (err?.response?.status === 401) {
+          navigate("/login");
+        } else {
+          console.error("User fetch failed:", err.message);
+        }
+      } finally {
+        setLoadingUser(false);
+      }
+    };
+
+    fetchUser();
+  }, [dispatch, navigate, userData]);
 
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
 
       <main className="flex-1">
-        <Outlet />
+        {loadingUser ? (
+          <div className="flex justify-center items-center h-screen text-blue-600 font-medium">
+            Loading user profile...
+          </div>
+        ) : (
+          <Outlet />
+        )}
       </main>
 
       {!isChatPage && <Footer />}
@@ -52,3 +61,4 @@ const Body = () => {
 };
 
 export default Body;
+

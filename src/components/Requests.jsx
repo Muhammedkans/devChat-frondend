@@ -10,7 +10,6 @@ const Requests = () => {
   const dispatch = useDispatch();
   const requests = useSelector((store) => store.requests);
 
-  // ✅ Fetch friend requests
   useEffect(() => {
     const fetchRequests = async () => {
       try {
@@ -25,7 +24,6 @@ const Requests = () => {
     fetchRequests();
   }, [dispatch]);
 
-  // ✅ Accept / Reject handler with toast
   const handleReview = async (status, requestId) => {
     try {
       await axios.post(`${API_URL}/request/review/${status}/${requestId}`, {}, {
@@ -40,70 +38,83 @@ const Requests = () => {
   };
 
   if (!requests) return null;
+
   if (requests.length === 0) {
     return (
-      <div className="text-center text-2xl mt-10 text-gray-400">
-        No Friend Requests Found
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-pink-100 via-purple-100 to-blue-100">
+        <div className="text-center text-2xl text-gray-500 font-medium">
+          No Friend Requests Found 😔
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <h2 className="text-3xl font-bold mb-6 text-center text-white">Friend Requests</h2>
+    <div className="min-h-screen bg-gradient-to-tr from-pink-100 via-purple-100 to-blue-100 px-4 py-10">
+      <div className="max-w-4xl mx-auto">
+        <h2 className="text-3xl sm:text-4xl font-bold mb-8 text-center text-gray-800">
+          🔔 Friend Requests
+        </h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        {requests
-          .filter((req) => req?.fromUserId && req._id)
-          .map((req) => {
-            const user = req.fromUserId;
-            return (
-              <div
-                key={req._id}
-                className="bg-gray-900 text-white p-4 rounded-xl shadow-md flex items-center gap-4"
-              >
-                <img
-                  src={user.photoUrl}
-                  alt="profile"
-                  className="w-16 h-16 rounded-full object-cover border-2 border-pink-500"
-                />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {requests
+            .filter((req) => req?.fromUserId && req._id)
+            .map((req) => {
+              const user = req.fromUserId;
+              return (
+                <div
+                  key={req._id}
+                  className="bg-white p-5 rounded-2xl shadow-md flex flex-col sm:flex-row items-center gap-4 hover:shadow-lg transition"
+                >
+                  <img
+                    src={
+                      user.photoUrl ||
+                      "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                    }
+                    alt="profile"
+                    className="w-16 h-16 rounded-full object-cover border-2 border-pink-400"
+                  />
 
-                <div className="flex-1">
-                  <Link to={`/users/${user._id}`} className="block">
-                    <h3 className="text-lg font-semibold">
-                      {user.firstName} {user.lastName}
-                    </h3>
-                    <p className="text-sm text-gray-400">{user.about || "No bio available"}</p>
-                    {user.age && user.gender && (
-                      <p className="text-xs text-gray-500">
-                        {user.age} years old, {user.gender}
+                  <div className="flex-1 text-center sm:text-left">
+                    <Link to={`/users/${user._id}`} className="block hover:underline">
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        {user.firstName} {user.lastName}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        {user.about || "No bio available"}
                       </p>
-                    )}
-                  </Link>
-                </div>
+                      {user.age && user.gender && (
+                        <p className="text-xs text-gray-500">
+                          {user.age} years old, {user.gender}
+                        </p>
+                      )}
+                    </Link>
+                  </div>
 
-                <div className="flex flex-col gap-2">
-                  <button
-                    onClick={() => handleReview("rejected", req._id)}
-                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-1 rounded-full text-sm"
-                  >
-                    Reject
-                  </button>
-                  <button
-                    onClick={() => handleReview("accepted", req._id)}
-                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded-full text-sm"
-                  >
-                    Accept
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleReview("rejected", req._id)}
+                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded-full text-sm"
+                    >
+                      Reject
+                    </button>
+                    <button
+                      onClick={() => handleReview("accepted", req._id)}
+                      className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded-full text-sm"
+                    >
+                      Accept
+                    </button>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+        </div>
       </div>
     </div>
   );
 };
 
 export default Requests;
+
 
 

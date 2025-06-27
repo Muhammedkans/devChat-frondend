@@ -81,11 +81,11 @@ const PostCard = ({ post }) => {
 
   const profileImage =
     post.user?.photoUrl ||
-    "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp";
+    "https://api.dicebear.com/7.x/initials/svg?seed=" + post.user?.firstName;
 
   return (
-    <div className="border border-gray-200 rounded-xl bg-white shadow hover:shadow-md transition-all duration-300 mb-6">
-      {/* Header */}
+    <div className="rounded-2xl shadow-sm border border-purple-100 bg-white transition hover:shadow-md mb-6 overflow-hidden">
+      {/* 🧑‍🎤 User Info */}
       <div className="flex items-center justify-between px-5 py-4">
         <Link
           to={profileLink}
@@ -94,7 +94,7 @@ const PostCard = ({ post }) => {
           <img
             src={profileImage}
             alt="User"
-            className="w-11 h-11 rounded-full object-cover ring-2 ring-blue-200"
+            className="w-11 h-11 rounded-full object-cover ring-2 ring-purple-200"
           />
           <div className="leading-tight">
             <p className="font-semibold text-gray-900 text-sm">
@@ -105,35 +105,45 @@ const PostCard = ({ post }) => {
         </Link>
       </div>
 
-      {/* Post Content */}
+      {/* ✏️ Post Content */}
       {post.contentText && (
-        <p className="px-5 pb-3 text-sm text-gray-800">{post.contentText}</p>
+        <p className="px-5 pb-3 text-sm text-gray-800 whitespace-pre-wrap">
+          {post.contentText}
+        </p>
       )}
+
       {post.contentImageUrl && (
         <img
           src={post.contentImageUrl}
           alt="Post"
-          className="w-full max-h-[500px] object-cover rounded-lg"
+          className="w-full max-h-[500px] object-cover rounded-md"
         />
       )}
 
-      {/* Like & Comment */}
+      {/* ❤️ Like + 💬 Comment Buttons */}
       <div className="flex items-center px-5 py-3 gap-5 border-t text-gray-600">
-        <button onClick={handleLike} className="flex items-center gap-1 hover:text-red-500">
-          {hasLiked ? <FaHeart className="text-red-500 text-lg" /> : <FaRegHeart className="text-lg" />}
+        <button
+          onClick={handleLike}
+          className="flex items-center gap-1 hover:text-red-500 transition"
+        >
+          {hasLiked ? (
+            <FaHeart className="text-red-500 text-lg" />
+          ) : (
+            <FaRegHeart className="text-lg" />
+          )}
           <span className="text-sm">{likes.length}</span>
         </button>
 
         <button
           onClick={() => setShowComments((s) => !s)}
-          className="flex items-center gap-1 hover:text-blue-500"
+          className="flex items-center gap-1 hover:text-blue-600 transition"
         >
           <FaRegComment className="text-lg" />
           <span className="text-sm">{commentCount}</span>
         </button>
       </div>
 
-      {/* Comments Section */}
+      {/* 📝 Comments Section */}
       {showComments && (
         <div className="px-5 pb-4 pt-2">
           <CommentForm postId={post._id} />
@@ -145,6 +155,7 @@ const PostCard = ({ post }) => {
 };
 
 export default PostCard;
+
 
 
 

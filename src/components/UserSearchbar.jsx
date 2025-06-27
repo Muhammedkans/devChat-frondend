@@ -40,7 +40,6 @@ const UserSearchBar = () => {
         setResults(users);
 
         const userIds = users.map((u) => u._id);
-
         const statusRes = await API.post(`/request/status/bulk`, { userIds });
         setExistingRequests((statusRes.data.requestedIds || []).map(id => id.toString()));
 
@@ -61,10 +60,10 @@ const UserSearchBar = () => {
     try {
       if (followingIds.includes(userId)) {
         await unfollowUser(userId);
-        setFollowingIds((prev) => prev.filter((id) => id !== userId));
+        setFollowingIds(prev => prev.filter(id => id !== userId));
       } else {
         await followUser(userId);
-        setFollowingIds((prev) => [...prev, userId]);
+        setFollowingIds(prev => [...prev, userId]);
       }
       queryClient.invalidateQueries(["my-profile"]);
     } catch (err) {
@@ -75,9 +74,8 @@ const UserSearchBar = () => {
   const handleAddFriend = async (userId) => {
     try {
       const res = await API.post(`/request/send/interested/${userId}`);
-      console.log("Friend request success:", res.data);
-      setRequestedIds((prev) => [...prev, userId]);
-      setExistingRequests((prev) => [...prev, userId]);
+      setRequestedIds(prev => [...prev, userId]);
+      setExistingRequests(prev => [...prev, userId]);
       queryClient.invalidateQueries(["my-profile"]);
     } catch (err) {
       console.error("Friend request error:", err.response?.data || err.message);
@@ -87,19 +85,17 @@ const UserSearchBar = () => {
   const isOwnUser = (id) => id === myProfile?._id;
 
   return (
-    <div className="space-y-4 max-w-3xl mx-auto px-4 py-6">
-      {/* 🔍 Search Input */}
-      <form onSubmit={(e) => e.preventDefault()} className="flex gap-2">
+    <div className="w-full mb-6">
+      <form onSubmit={(e) => e.preventDefault()} className="mb-4">
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search developers..."
-          className="w-full px-4 py-2 rounded-md border border-gray-700 bg-gray-800 text-white focus:outline-none"
+          className="w-full px-4 py-2 rounded-lg border border-gray-400 bg-white text-gray-800 focus:outline-none focus:ring focus:border-blue-500 shadow"
         />
       </form>
 
-      {/* 🔎 Results */}
       <div className="space-y-4">
         {!loadingStatus && results.map((user) => {
           const userId = user._id.toString();
@@ -112,45 +108,47 @@ const UserSearchBar = () => {
           return (
             <div
               key={user._id}
-              className="bg-gray-900 text-white p-4 rounded-xl shadow flex items-center justify-between"
+              className="bg-white text-gray-800 p-4 rounded-xl shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4"
             >
               <Link to={`/users/${user._id}`} className="flex items-center gap-4">
                 <img
                   src={user.photoUrl}
                   alt="profile"
-                  className="w-12 h-12 rounded-full object-cover border border-gray-700"
+                  className="w-14 h-14 rounded-full object-cover border-2 border-purple-400"
                 />
                 <div>
                   <p className="font-semibold text-lg">{user.firstName} {user.lastName}</p>
-                  <p className="text-sm text-gray-400">{user.about || "No bio available"}</p>
+                  <p className="text-sm text-gray-500">{user.about || "No bio available"}</p>
                 </div>
               </Link>
 
-              <div className="flex gap-2 flex-col sm:flex-row mt-2 sm:mt-0">
-                {/* Friend Button */}
+              <div className="flex flex-wrap gap-2 justify-end">
                 {isFriend ? (
-                  <span className="bg-green-600 px-3 py-1 rounded text-sm">Friend ✓</span>
+                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                    Friend ✓
+                  </span>
                 ) : isRequested ? (
                   <button
                     disabled
-                    className="bg-yellow-500 text-white px-3 py-1 rounded text-sm"
+                    className="bg-yellow-200 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium cursor-not-allowed"
                   >
                     Requested
                   </button>
                 ) : (
                   <button
                     onClick={() => handleAddFriend(userId)}
-                    className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm"
+                    className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-full text-sm font-medium"
                   >
                     Add Friend
                   </button>
                 )}
 
-                {/* Follow Button */}
                 <button
                   onClick={() => handleFollowToggle(userId)}
-                  className={`px-3 py-1 rounded text-sm text-white transition ${
-                    isFollowing ? "bg-gray-600 hover:bg-gray-700" : "bg-blue-600 hover:bg-blue-700"
+                  className={`px-3 py-1 rounded-full text-sm font-medium transition ${
+                    isFollowing
+                      ? "bg-gray-300 text-gray-800 hover:bg-gray-400"
+                      : "bg-blue-500 text-white hover:bg-blue-600"
                   }`}
                 >
                   {isFollowing ? "Unfollow" : "Follow"}
@@ -161,7 +159,7 @@ const UserSearchBar = () => {
         })}
 
         {results.length === 0 && query.trim() !== "" && !loadingStatus && (
-          <p className="text-center text-gray-400">No users found</p>
+          <p className="text-center text-gray-500 mt-6">No users found</p>
         )}
       </div>
     </div>
@@ -169,6 +167,8 @@ const UserSearchBar = () => {
 };
 
 export default UserSearchBar;
+
+
 
 
 

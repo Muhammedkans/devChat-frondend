@@ -15,12 +15,12 @@ const Chat = () => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  // ✅ Scroll to bottom when messages change
+  // ✅ Scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // ✅ Fetch previous messages
+  // ✅ Fetch old messages
   useEffect(() => {
     const fetchMessages = async () => {
       try {
@@ -46,7 +46,7 @@ const Chat = () => {
     fetchMessages();
   }, [targetUserId]);
 
-  // ✅ Real-time message receive (including sender)
+  // ✅ Join room & listen for messages
   useEffect(() => {
     if (!socket || !isConnected || !user?._id || !targetUserId) return;
 
@@ -73,9 +73,7 @@ const Chat = () => {
       text: trimmed,
     };
 
-    // ✅ Don't push manually, let server send via socket
     socket.emit('sendMessage', messagePayload);
-
     setNewMessage('');
     inputRef.current?.focus();
   };
@@ -85,58 +83,74 @@ const Chat = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col max-w-xl mx-auto border border-gray-300 rounded-lg shadow-md bg-white">
+    <div className="h-screen flex flex-col max-w-xl mx-auto shadow-xl border border-gray-300 rounded-lg bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100">
       <ChatHeader userId={targetUserId} />
 
-      {/* ✅ Messages list */}
-      <div className="flex-1 overflow-y-auto p-4">
-        {messages.map((msg, index) => (
-          <div
-            key={index}
-            className={`chat ${
-              user._id === msg.userId ? 'chat-end' : 'chat-start'
-            } mb-4`}
-          >
-            <div className="chat-image avatar">
-              <div className="w-10 h-10 rounded-full">
+      {/* 💬 Messages */}
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+        {messages.map((msg, index) => {
+          const isMyMessage = user._id === msg.userId;
+          return (
+            <div
+              key={index}
+              className={`flex items-end ${isMyMessage ? 'justify-end' : 'justify-start'} mb-2`}
+            >
+              {/* 👤 Receiver profile */}
+              {!isMyMessage && (
                 <img
-                  alt="Profile"
-                  src={
-                    msg.photoUrl ||
-                    'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'
-                  }
+                  src={msg.photoUrl || 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'}
+                  alt="Receiver"
+                  className="w-8 h-8 rounded-full mr-2"
                 />
+              )}
+
+              {/* 💬 Chat bubble */}
+              <div
+                className={`max-w-xs px-4 py-2 rounded-2xl text-sm shadow-md ${
+                  isMyMessage
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-br-none'
+                    : 'bg-white text-gray-900 rounded-bl-none'
+                }`}
+              >
+                <div className="font-semibold">
+                  {msg.firstName} {msg.lastName}
+                </div>
+                <div>{msg.text}</div>
+                <div className="text-[10px] text-right mt-1 opacity-60">
+                  {msg.createdAt
+                    ? new Date(msg.createdAt).toLocaleTimeString()
+                    : 'now'}
+                </div>
               </div>
+
+              {/* 👤 Sender profile */}
+              {isMyMessage && (
+                <img
+                  src={msg.photoUrl || 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'}
+                  alt="Me"
+                  className="w-8 h-8 rounded-full ml-2"
+                />
+              )}
             </div>
-            <div className="chat-header font-medium text-sm">
-              {msg.firstName} {msg.lastName}
-              <time className="text-xs opacity-50 ml-2">
-                {msg.createdAt
-                  ? new Date(msg.createdAt).toLocaleTimeString()
-                  : 'now'}
-              </time>
-            </div>
-            <div className="chat-bubble">{msg.text}</div>
-            <div className="chat-footer opacity-50 text-xs">Delivered</div>
-          </div>
-        ))}
+          );
+        })}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* ✅ Input field */}
-      <div className="sticky bottom-0 bg-white p-4 border-t border-gray-300 flex items-center gap-2">
+      {/* ✏️ Message input */}
+      <div className="sticky bottom-0 p-4 border-t border-gray-200 bg-white flex items-center gap-2">
         <input
           ref={inputRef}
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           onKeyDown={handleKeyDown}
           type="text"
-          className="flex-1 border border-gray-300 rounded-md p-2"
+          className="flex-1 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:ring-purple-300"
           placeholder="Type your message..."
         />
         <button
           onClick={sendMessage}
-          className="bg-blue-500 text-white px-4 py-2 rounded-md"
+          className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-2 rounded-md hover:opacity-90"
         >
           Send
         </button>
@@ -146,6 +160,9 @@ const Chat = () => {
 };
 
 export default Chat;
+
+
+
 
 
 

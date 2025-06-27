@@ -12,12 +12,14 @@ const FeedPosts = () => {
   const { socket } = useSocket();
   const queryClient = useQueryClient();
 
+  // 🔐 Redirect if unauthorized
   useEffect(() => {
     if (error?.response?.status === 401) {
       navigate("/login");
     }
   }, [error, navigate]);
 
+  // 🔁 Realtime Like Update
   useEffect(() => {
     if (!socket) return;
 
@@ -33,17 +35,17 @@ const FeedPosts = () => {
     return () => socket.off("likeUpdated", handleLikeUpdate);
   }, [socket, queryClient]);
 
-  // 🌀 Spinner while loading
+  // 🌀 Loading UI
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-        <span className="ml-3 text-blue-600 font-medium">Loading your feed...</span>
+      <div className="flex justify-center items-center h-64 bg-white rounded-lg shadow-md">
+        <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+        <span className="ml-3 text-purple-600 font-medium">Loading your feed...</span>
       </div>
     );
   }
 
-  // ❌ Error message
+  // ❌ Error UI
   if (isError) {
     return (
       <div className="text-center mt-8 text-red-500 text-sm">
@@ -52,12 +54,12 @@ const FeedPosts = () => {
     );
   }
 
-  // 📭 No posts
+  // 📭 No posts yet
   if (posts.length === 0) {
     return (
-      <div className="flex flex-col items-center mt-16 text-center text-gray-500">
-        <p className="mb-4 text-lg font-semibold">Your feed is empty.</p>
-        <p className="text-sm mb-6">Follow other developers to see their posts here.</p>
+      <div className="flex flex-col items-center mt-16 text-center bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 p-6 rounded-xl shadow">
+        <p className="mb-2 text-xl font-semibold text-gray-800">Your feed is empty</p>
+        <p className="text-sm text-gray-600 mb-6">Follow developers to see their posts here!</p>
         <Link
           to="/explore-developers"
           className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition"
@@ -69,13 +71,13 @@ const FeedPosts = () => {
     );
   }
 
-  // ✅ Post list
+  // ✅ Render posts
   return (
     <div className="space-y-6">
       {posts.map((post) => (
         <div
           key={post._id}
-          className="bg-white rounded-xl shadow-md border border-blue-100 hover:shadow-lg transition p-6"
+          className="bg-white rounded-xl shadow-md border border-purple-200 hover:shadow-lg transition p-4 sm:p-6"
         >
           <PostCard post={post} />
         </div>
@@ -85,6 +87,7 @@ const FeedPosts = () => {
 };
 
 export default FeedPosts;
+
 
 
 

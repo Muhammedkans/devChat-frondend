@@ -7,61 +7,67 @@ import { useEffect } from 'react';
 const ProfilePage = () => {
   const navigate = useNavigate();
   const { data, isLoading, error } = useMyProfile();
-  const {
-    data: posts = [],
-    isLoading: loadingPosts,
-  } = useMyPosts();
+  const { data: posts = [], isLoading: loadingPosts } = useMyPosts();
 
-  // 🔐 Redirect to login if token is invalid or missing
   useEffect(() => {
     if (error?.response?.status === 401) {
       navigate('/login');
     }
   }, [error, navigate]);
 
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading) return <p className="text-center mt-10">Loading...</p>;
 
   return (
-    <div className="flex flex-col items-center w-full min-h-screen overflow-y-auto px-4 py-10 bg-white">
+    <div className="flex flex-col items-center w-full min-h-screen px-4 py-10 bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100">
+      {/* Profile Photo */}
       <Profilephoto />
-      <h2 className="text-2xl font-bold">{`${data?.firstName} ${data?.lastName}`}</h2>
-      <p className="text-sm text-gray-600">{data?.about}</p>
 
-      <div className="flex justify-center gap-8 mt-4 text-center text-sm text-gray-800">
+      {/* User Info */}
+      <h2 className="text-2xl sm:text-3xl font-bold mt-4 text-center">
+        {`${data?.firstName} ${data?.lastName}`}
+      </h2>
+      <p className="text-sm sm:text-base text-gray-700 text-center mt-1 max-w-md">{data?.about}</p>
+
+      {/* Stats */}
+      <div className="flex justify-center gap-6 mt-6 text-center text-gray-800 w-full max-w-xs">
         <div>
           <div className="text-lg font-bold">{data.postsCount}</div>
-          <div>Posts</div>
+          <div className="text-xs sm:text-sm">Posts</div>
         </div>
         <div>
           <div className="text-lg font-bold">{data.followersCount}</div>
-          <div>Followers</div>
+          <div className="text-xs sm:text-sm">Followers</div>
         </div>
         <div>
           <div className="text-lg font-bold">{data.followingCount}</div>
-          <div>Following</div>
+          <div className="text-xs sm:text-sm">Following</div>
         </div>
       </div>
 
+      {/* Edit Profile Button */}
       <button
-        className="mt-4 px-4 py-2 border rounded"
+        className="mt-6 px-6 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100 transition text-sm font-medium"
         onClick={() => navigate('/editProfile')}
       >
-        Edit Profile
+        ✏️ Edit Profile
       </button>
 
-      <div className="w-full max-w-4xl mt-10 px-4">
-        <h2 className="text-xl font-bold mb-4">Your Posts</h2>
+      {/* Posts Grid */}
+      <div className="w-full max-w-6xl mt-10 px-2 sm:px-4">
+        <h2 className="text-xl font-semibold mb-4 text-gray-800 text-center sm:text-left">
+          📸 Your Posts
+        </h2>
 
         {loadingPosts ? (
-          <p>Loading posts...</p>
+          <p className="text-center text-gray-500">Loading posts...</p>
         ) : posts?.length === 0 ? (
-          <p className="text-gray-500">No posts yet.</p>
+          <p className="text-center text-gray-500">No posts yet.</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
             {posts.map((post) => (
               <div
                 key={post._id}
-                className="aspect-square bg-gray-200 rounded overflow-hidden shadow"
+                className="aspect-square bg-white rounded-lg overflow-hidden shadow hover:scale-105 transition"
               >
                 <img
                   src={post.contentImageUrl}
@@ -78,6 +84,7 @@ const ProfilePage = () => {
 };
 
 export default ProfilePage;
+
 
 
 

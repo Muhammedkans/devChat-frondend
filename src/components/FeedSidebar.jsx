@@ -21,17 +21,19 @@ const FeedSidebar = () => {
     }
   }, [error, navigate]);
 
-  if (isLoading)
+  if (isLoading) {
     return (
       <div className="p-4 text-center text-sm text-gray-600">Loading...</div>
     );
+  }
 
-  if (isError)
+  if (isError) {
     return (
       <div className="p-4 text-center text-sm text-red-500">
         Failed to load profile.
       </div>
     );
+  }
 
   const handleLogout = async () => {
     try {
@@ -46,25 +48,33 @@ const FeedSidebar = () => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-gray-50 to-blue-100 rounded-xl shadow p-6 text-center space-y-4 transition">
+    <div className="bg-white rounded-xl border shadow-md p-6 text-center space-y-4 transition-all duration-300">
+      {/* 🧑‍💻 Avatar */}
       <img
-        src={user?.photoUrl}
+        src={
+          user?.photoUrl ||
+          `https://api.dicebear.com/7.x/initials/svg?seed=${user?.firstName}`
+        }
         alt="Profile"
-        className="w-24 h-24 mx-auto rounded-full object-cover border-4 border-blue-300 shadow-md"
+        className="w-24 h-24 mx-auto rounded-full object-cover border-4 border-blue-200 shadow-sm"
       />
+
+      {/* 👤 Name + Premium */}
       <div>
         <p className="text-xl font-semibold text-gray-800">
           {user?.firstName} {user?.lastName}
         </p>
         {user?.isPremium && (
-          <span className="text-sm text-blue-600 font-semibold bg-blue-100 px-2 py-0.5 rounded-full inline-block mt-1">
-            Premium ✓
+          <span className="text-sm font-medium text-blue-700 bg-blue-100 px-3 py-0.5 rounded-full inline-block mt-1">
+            ⭐ Premium Member
           </span>
         )}
       </div>
+
+      {/* 🔘 Logout */}
       <button
         onClick={handleLogout}
-        className="bg-red-100 hover:bg-red-200 text-red-600 px-4 py-1 rounded-full font-medium transition"
+        className="w-full bg-red-50 hover:bg-red-100 text-red-600 font-medium py-2 rounded-full transition"
       >
         Logout
       </button>
@@ -73,6 +83,7 @@ const FeedSidebar = () => {
 };
 
 export default FeedSidebar;
+
 
 
 

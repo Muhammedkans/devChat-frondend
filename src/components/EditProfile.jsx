@@ -1,5 +1,4 @@
-import {  useEffect, useState } from "react";
-
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -22,22 +21,35 @@ const EditProfile = () => {
       setAbout(profile.about || "");
     }
   }, [profile]);
-  const { mutate } = useMutation({
+
+  const { mutate, isLoading: isUpdating } = useMutation({
     mutationFn: (updatedData) => API.patch("/profile/edit", updatedData),
     onSuccess: () => {
-      toast.success("Profile updated successfully!");
-      queryClient.invalidateQueries(["my-profile"]); // if you're using profile fetch elsewhere
+      toast.success("✅ Profile updated successfully!");
+      queryClient.invalidateQueries(["my-profile"]);
       navigate("/profile");
     },
     onError: () => {
-      toast.error("Something went wrong. Please try again.");
-    }
+      toast.error("❌ Something went wrong. Please try again.");
+    },
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    mutate({ firstName, lastName, about });
+    mutate({
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      about: about.trim(),
+    });
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex justify-center items-center text-blue-600 font-medium">
+        Loading profile...
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
@@ -48,10 +60,10 @@ const EditProfile = () => {
         <h2 className="text-2xl font-bold mb-4 text-center">Edit Profile</h2>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">First Name</label>
+          <label htmlFor="firstName" className="block text-sm font-medium mb-1">First Name</label>
           <input
+            id="firstName"
             type="text"
-            name="firstName"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
             required
@@ -60,10 +72,10 @@ const EditProfile = () => {
         </div>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Last Name</label>
+          <label htmlFor="lastName" className="block text-sm font-medium mb-1">Last Name</label>
           <input
+            id="lastName"
             type="text"
-            name="lastName"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
             required
@@ -72,9 +84,9 @@ const EditProfile = () => {
         </div>
 
         <div className="mb-6">
-          <label className="block text-sm font-medium mb-1">About</label>
+          <label htmlFor="about" className="block text-sm font-medium mb-1">About</label>
           <textarea
-            name="about"
+            id="about"
             value={about}
             onChange={(e) => setAbout(e.target.value)}
             rows="4"
@@ -85,12 +97,14 @@ const EditProfile = () => {
 
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded-xl hover:bg-blue-700 transition duration-200"
+          disabled={isUpdating}
+          className="w-full bg-blue-600 text-white py-2 rounded-xl hover:bg-blue-700 transition disabled:opacity-50"
         >
-          Save Changes
+          {isUpdating ? "Saving..." : "Save Changes"}
         </button>
       </form>
     </div>
   );
 };
+
 export default EditProfile;
