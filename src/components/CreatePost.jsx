@@ -12,7 +12,6 @@ const CreatePost = () => {
   const { mutate: createPost } = useMutation({
     mutationFn: async (formData) => {
       const res = await API.post("/posts", formData, {
-        // ✅ Do NOT set Content-Type manually!
         withCredentials: true,
       });
       return res.data;
@@ -35,7 +34,6 @@ const CreatePost = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     if (!contentText && !photo) {
       alert("⚠️ Please enter some text or choose an image.");
       return;
@@ -43,7 +41,6 @@ const CreatePost = () => {
 
     const formData = new FormData();
     formData.append("contentText", contentText.trim());
-
     if (photo) {
       formData.append("photo", photo);
     }
@@ -64,37 +61,37 @@ const CreatePost = () => {
     <form
       onSubmit={handleSubmit}
       encType="multipart/form-data"
-      className="border p-4 rounded-lg shadow space-y-4 bg-white"
+      className="bg-white border border-blue-100 p-6 rounded-xl shadow-md space-y-4"
     >
-      <h2 className="text-xl font-semibold">Create a Post</h2>
+      <h2 className="text-lg font-semibold text-blue-700">Create a Post</h2>
 
       <textarea
         rows="3"
         placeholder="What's on your mind?"
         value={contentText}
         onChange={(e) => setContentText(e.target.value)}
-        className="w-full p-2 border rounded focus:outline-none focus:ring"
+        className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
       />
 
       <input
         type="file"
         accept="image/*"
         onChange={handlePhotoChange}
-        className="block"
+        className="block text-sm text-gray-600"
       />
 
       {preview && (
         <img
           src={preview}
           alt="Preview"
-          className="max-h-64 w-full object-contain rounded border"
+          className="max-h-64 w-full object-contain rounded border mt-2"
         />
       )}
 
       <button
         type="submit"
         disabled={loading}
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-medium disabled:opacity-50"
       >
         {loading ? "Posting..." : "Post"}
       </button>
@@ -103,6 +100,7 @@ const CreatePost = () => {
 };
 
 export default CreatePost;
+
 
 
 

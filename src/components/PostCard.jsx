@@ -19,7 +19,6 @@ const PostCard = ({ post }) => {
 
   const hasLiked = myUser?._id && likes.includes(myUser._id);
 
-  // ✅ Real-time Like updates
   useEffect(() => {
     if (!socket) return;
 
@@ -40,7 +39,6 @@ const PostCard = ({ post }) => {
     return () => socket.off("likeUpdate", handleLikeUpdate);
   }, [socket, post._id]);
 
-  // ✅ Real-time comment count update
   useEffect(() => {
     if (!socket) return;
 
@@ -54,7 +52,6 @@ const PostCard = ({ post }) => {
     return () => socket.off("commentCountUpdate", handleCommentCountUpdate);
   }, [socket, post._id]);
 
-  // ✅ Like mutation (async)
   const likeMutation = useMutation({
     mutationFn: ({ hasLiked }) =>
       hasLiked ? unlikePost(post._id) : likePost(post._id),
@@ -64,13 +61,10 @@ const PostCard = ({ post }) => {
     if (!myUser?._id) return;
 
     const alreadyLiked = likes.includes(myUser._id);
-
-    // 👉 Instant UI update
     setLikes((prev) =>
       alreadyLiked ? prev.filter((id) => id !== myUser._id) : [...prev, myUser._id]
     );
 
-    // 👉 Emit immediately
     if (socket) {
       socket.emit("likeUpdate", {
         postId: post._id,
@@ -79,7 +73,6 @@ const PostCard = ({ post }) => {
       });
     }
 
-    // 👉 Async backend call
     likeMutation.mutate({ hasLiked: alreadyLiked });
   };
 
@@ -91,45 +84,59 @@ const PostCard = ({ post }) => {
     "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp";
 
   return (
-    <div className="border rounded-lg bg-white shadow-sm mb-6">
+    <div className="border border-gray-200 rounded-xl bg-white shadow hover:shadow-md transition-all duration-300 mb-6">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3">
-        <Link to={profileLink} className="flex items-center gap-3 hover:bg-gray-50 p-2 rounded">
-          <img src={profileImage} alt="User" className="w-10 h-10 rounded-full object-cover" />
-          <div>
-            <p className="font-semibold text-sm">{post.user?.firstName}</p>
+      <div className="flex items-center justify-between px-5 py-4">
+        <Link
+          to={profileLink}
+          className="flex items-center gap-4 hover:bg-gray-50 p-2 rounded-lg transition"
+        >
+          <img
+            src={profileImage}
+            alt="User"
+            className="w-11 h-11 rounded-full object-cover ring-2 ring-blue-200"
+          />
+          <div className="leading-tight">
+            <p className="font-semibold text-gray-900 text-sm">
+              {post.user?.firstName} {post.user?.lastName}
+            </p>
             <p className="text-xs text-gray-500">{post.createdAt?.slice(0, 10)}</p>
           </div>
         </Link>
       </div>
 
       {/* Post Content */}
-      {post.contentText && <p className="px-4 text-sm mb-2">{post.contentText}</p>}
+      {post.contentText && (
+        <p className="px-5 pb-3 text-sm text-gray-800">{post.contentText}</p>
+      )}
       {post.contentImageUrl && (
-        <img src={post.contentImageUrl} alt="Post" className="w-full max-h-[500px] object-cover" />
+        <img
+          src={post.contentImageUrl}
+          alt="Post"
+          className="w-full max-h-[500px] object-cover rounded-lg"
+        />
       )}
 
-      {/* Actions */}
-      <div className="flex items-center px-4 py-2 gap-5">
-        <button onClick={handleLike}>
-          {hasLiked ? (
-            <FaHeart className="text-red-500 text-2xl" />
-          ) : (
-            <FaRegHeart className="text-2xl" />
-          )}
+      {/* Like & Comment */}
+      <div className="flex items-center px-5 py-3 gap-5 border-t text-gray-600">
+        <button onClick={handleLike} className="flex items-center gap-1 hover:text-red-500">
+          {hasLiked ? <FaHeart className="text-red-500 text-lg" /> : <FaRegHeart className="text-lg" />}
+          <span className="text-sm">{likes.length}</span>
         </button>
-        <span className="text-sm">{likes.length}</span>
 
-        <button onClick={() => setShowComments((s) => !s)}>
-          <FaRegComment className="text-2xl" />
+        <button
+          onClick={() => setShowComments((s) => !s)}
+          className="flex items-center gap-1 hover:text-blue-500"
+        >
+          <FaRegComment className="text-lg" />
+          <span className="text-sm">{commentCount}</span>
         </button>
-        <span className="text-sm">{commentCount}</span>
       </div>
 
-      {/* Comments */}
+      {/* Comments Section */}
       {showComments && (
-        <div className="px-4 pb-4">
-          <CommentForm postId={post._id} /> {/* ✅ FIXED: removed manual +1 */}
+        <div className="px-5 pb-4 pt-2">
+          <CommentForm postId={post._id} />
           <CommentList postId={post._id} />
         </div>
       )}
@@ -138,6 +145,7 @@ const PostCard = ({ post }) => {
 };
 
 export default PostCard;
+
 
 
 

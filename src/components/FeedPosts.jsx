@@ -8,18 +8,16 @@ import { useQueryClient } from "@tanstack/react-query";
 
 const FeedPosts = () => {
   const navigate = useNavigate();
-  const { data: posts = [], isLoading, isError, error } = usePostFeed(); // 👈 make sure error is returned
+  const { data: posts = [], isLoading, isError, error } = usePostFeed();
   const { socket } = useSocket();
   const queryClient = useQueryClient();
 
-  // ✅ Redirect if unauthorized
   useEffect(() => {
     if (error?.response?.status === 401) {
       navigate("/login");
     }
   }, [error, navigate]);
 
-  // ✅ Listen for real-time post updates
   useEffect(() => {
     if (!socket) return;
 
@@ -32,13 +30,10 @@ const FeedPosts = () => {
     };
 
     socket.on("likeUpdated", handleLikeUpdate);
-
-    return () => {
-      socket.off("likeUpdated", handleLikeUpdate);
-    };
+    return () => socket.off("likeUpdated", handleLikeUpdate);
   }, [socket, queryClient]);
 
-  // 🌀 Loading (will not block unauthorized users anymore)
+  // 🌀 Spinner while loading
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -48,7 +43,7 @@ const FeedPosts = () => {
     );
   }
 
-  // ❌ Error (other than 401)
+  // ❌ Error message
   if (isError) {
     return (
       <div className="text-center mt-8 text-red-500 text-sm">
@@ -57,11 +52,11 @@ const FeedPosts = () => {
     );
   }
 
-  // 📭 Empty
+  // 📭 No posts
   if (posts.length === 0) {
     return (
       <div className="flex flex-col items-center mt-16 text-center text-gray-500">
-        <p className="mb-4 text-lg font-medium">Your feed is empty.</p>
+        <p className="mb-4 text-lg font-semibold">Your feed is empty.</p>
         <p className="text-sm mb-6">Follow other developers to see their posts here.</p>
         <Link
           to="/explore-developers"
@@ -74,11 +69,14 @@ const FeedPosts = () => {
     );
   }
 
-  // ✅ Feed Display
+  // ✅ Post list
   return (
     <div className="space-y-6">
       {posts.map((post) => (
-        <div key={post._id} className="bg-white rounded-xl shadow p-4">
+        <div
+          key={post._id}
+          className="bg-white rounded-xl shadow-md border border-blue-100 hover:shadow-lg transition p-6"
+        >
           <PostCard post={post} />
         </div>
       ))}
@@ -87,6 +85,9 @@ const FeedPosts = () => {
 };
 
 export default FeedPosts;
+
+
+
 
 
 
