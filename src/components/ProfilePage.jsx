@@ -65,16 +65,29 @@ const ProfilePage = () => {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
             {posts.map((post) => (
-              <div
-                key={post._id}
-                className="aspect-square bg-white rounded-lg overflow-hidden shadow hover:scale-105 transition"
-              >
-                <img
-                  src={post.contentImageUrl}
-                  alt="Post"
-                  className="w-full h-full object-cover"
-                />
-              </div>
+              (post.contentImageUrl || post.contentText) && (
+                <div
+                  key={post._id}
+                  className="aspect-square bg-white rounded-lg overflow-hidden shadow hover:scale-105 transition p-2 flex flex-col justify-center items-center text-center"
+                >
+                  {/* 📝 Text */}
+                  {post.contentText && (
+                    <p className="text-sm text-gray-800 mb-2 line-clamp-4">
+                      {post.contentText}
+                    </p>
+                  )}
+
+                  {/* 🖼️ Image */}
+                  {post.contentImageUrl && (
+                    <img
+                      src={post.contentImageUrl}
+                      alt="Post"
+                      className="w-full h-full object-cover rounded"
+                      onError={(e) => (e.target.style.display = 'none')}
+                    />
+                  )}
+                </div>
+              )
             ))}
           </div>
         )}
@@ -84,6 +97,7 @@ const ProfilePage = () => {
 };
 
 export default ProfilePage;
+
 
 
 

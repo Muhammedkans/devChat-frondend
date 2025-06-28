@@ -14,18 +14,16 @@ const Body = () => {
   const location = useLocation();
   const userData = useSelector((store) => store.user);
 
-  const [loadingUser, setLoadingUser] = useState(false);
+  const [loadingUser, setLoadingUser] = useState(true);
   const isChatPage = location.pathname.startsWith("/chat");
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        if (userData) return;
-
-        setLoadingUser(true);
         const res = await axios.get(`${API_URL}/profile/view`, {
           withCredentials: true,
         });
+
         dispatch(addUser(res?.data));
       } catch (err) {
         if (err?.response?.status === 401) {
@@ -38,7 +36,12 @@ const Body = () => {
       }
     };
 
-    fetchUser();
+    // Always try to fetch if userData not available
+    if (!userData || !userData._id) {
+      fetchUser();
+    } else {
+      setLoadingUser(false);
+    }
   }, [dispatch, navigate, userData]);
 
   return (
@@ -61,4 +64,6 @@ const Body = () => {
 };
 
 export default Body;
+
+
 
