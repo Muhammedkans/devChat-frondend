@@ -1,4 +1,3 @@
-// src/components/comments/CommentList.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchComments } from "../../api/comments";
@@ -13,10 +12,9 @@ const CommentList = ({ postId }) => {
   const { data: fetchedComments = [], isLoading } = useQuery({
     queryKey: ["comments", postId],
     queryFn: () => fetchComments(postId),
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 5,
   });
 
-  // ✅ Avoid infinite loop: compare previous and new comments
   useEffect(() => {
     setComments((prev) => {
       const oldStr = JSON.stringify(prev);
@@ -26,16 +24,15 @@ const CommentList = ({ postId }) => {
     });
   }, [fetchedComments]);
 
-  // ✅ Real-time comment updates using socket
+  // ✅ Real-time comment updates
   useEffect(() => {
     if (!socket) return;
 
     const handleNewComment = ({ postId: incomingPostId, comment }) => {
       if (incomingPostId !== postId) return;
-
       setComments((prev) => {
-        const alreadyExists = prev.some((c) => c._id === comment._id);
-        if (alreadyExists) return prev;
+        const exists = prev.some((c) => c._id === comment._id);
+        if (exists) return prev;
         return [comment, ...prev];
       });
     };
@@ -44,22 +41,33 @@ const CommentList = ({ postId }) => {
     return () => socket.off("newComment", handleNewComment);
   }, [socket, postId]);
 
-  // ✅ Memoized rendering for performance
   const renderedComments = useMemo(() => {
     return comments
       .slice()
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-      .map((comment) => <CommentItem key={comment._id} comment={comment} />);
+      .map((comment) => (
+        <div
+          key={comment._id}
+          className="bg-[#1f1f29] text-gray-200 p-3 rounded-xl shadow-inner border border-[#33334d] backdrop-blur-sm"
+        >
+          <CommentItem comment={comment} />
+        </div>
+      ));
   }, [comments]);
 
   if (isLoading) {
-    return <p className="text-sm text-gray-500">Loading comments...</p>;
+    return (
+      <p className="text-sm text-purple-300 bg-[#1a1a25] p-3 rounded-xl">
+        Loading comments...
+      </p>
+    );
   }
 
-  return <div className="space-y-4 mt-4">{renderedComments}</div>;
+  return <div className="space-y-3 mt-4">{renderedComments}</div>;
 };
 
 export default CommentList;
+
 
 
 

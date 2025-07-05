@@ -1,6 +1,8 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { API_URL } from "../utils/constant";
+import { FaCrown, FaCheckCircle, FaUserFriends } from "react-icons/fa";
+import { MdVerified } from "react-icons/md";
 
 const Premium = () => {
   const [isUserPremium, setIsUserPremium] = useState(false);
@@ -40,14 +42,13 @@ const Premium = () => {
         name: "DevChat",
         description: "Connect to other developers",
         order_id: orderId,
-
         prefill: {
           name: `${notes.firstName} ${notes.lastName}`,
           email: notes.emailId,
           contact: "9999999999",
         },
         theme: { color: "#F37254" },
-        handler: verifyPremiumUser, // callback after payment success
+        handler: verifyPremiumUser, // payment success callback
       };
 
       const rzp = new window.Razorpay(options);
@@ -60,56 +61,68 @@ const Premium = () => {
 
   if (loading) {
     return (
-      <div className="text-center my-20 text-gray-500 font-medium text-lg">
-        Checking premium status...
+      <div className="text-center my-24 text-lg text-gray-600 animate-pulse">
+        ⏳ Checking your premium status...
       </div>
     );
   }
 
   if (isUserPremium) {
     return (
-      <div className="flex justify-center text-2xl my-20 text-green-600 font-bold">
-        🎉 You are already a Premium User!
+      <div className="flex flex-col items-center text-center my-24 space-y-4">
+        <FaCheckCircle className="text-green-500 text-5xl" />
+        <h2 className="text-2xl font-bold text-green-700">
+          🎉 You are already a Premium User!
+        </h2>
+        <p className="text-gray-600">Enjoy unlimited features and networking.</p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 w-11/12 mx-auto my-20">
+    <div className="flex flex-col lg:flex-row gap-8 w-11/12 mx-auto my-16">
       {/* Silver Card */}
-      <div className="flex-1 bg-[#C0C0C0] text-white rounded-xl shadow-lg p-6 space-y-4">
-        <h1 className="text-2xl font-bold text-center">Silver Membership</h1>
-        <ul className="text-base space-y-1 font-medium">
-          <li>• Chat with other people</li>
+      <div className="flex-1 bg-gradient-to-tr from-gray-300 to-gray-100 text-gray-900 rounded-2xl shadow-xl p-6 space-y-4">
+        <h1 className="text-2xl font-bold text-center flex items-center justify-center gap-2">
+          <FaUserFriends className="text-blue-600" /> Silver Membership
+        </h1>
+        <ul className="text-sm space-y-2 font-medium pl-4">
+          <li>• Chat with other developers</li>
           <li>• 100 connections per day</li>
-          <li>• 3 months</li>
-          <li>• Blue tick</li>
+          <li>• 3 months validity</li>
+          <li className="flex items-center gap-2">
+            • Blue Tick <MdVerified className="text-blue-500" />
+          </li>
         </ul>
-        <div className="flex justify-center pt-4">
+        <div className="pt-4">
           <button
             onClick={() => handlePayClick("silver")}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full transition"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-full font-semibold transition"
           >
-            Pay Now ₹300
+            Pay ₹300 Now
           </button>
         </div>
       </div>
 
       {/* Gold Card */}
-      <div className="flex-1 bg-[#FFD700] text-black rounded-xl shadow-lg p-6 space-y-4">
-        <h1 className="text-2xl font-bold text-center">Gold Membership</h1>
-        <ul className="text-base space-y-1 font-medium">
-          <li>• Chat with other people</li>
+      <div className="flex-1 bg-gradient-to-tr from-yellow-300 to-yellow-100 text-gray-900 rounded-2xl shadow-xl p-6 space-y-4">
+        <h1 className="text-2xl font-bold text-center flex items-center justify-center gap-2">
+          <FaCrown className="text-yellow-700" /> Gold Membership
+        </h1>
+        <ul className="text-sm space-y-2 font-medium pl-4">
+          <li>• Chat with all developers</li>
           <li>• 1000 connections per day</li>
-          <li>• 6 months</li>
-          <li>• Blue tick</li>
+          <li>• 6 months validity</li>
+          <li className="flex items-center gap-2">
+            • Blue Tick <MdVerified className="text-blue-500" />
+          </li>
         </ul>
-        <div className="flex justify-center pt-4">
+        <div className="pt-4">
           <button
             onClick={() => handlePayClick("gold")}
-            className="bg-black hover:bg-gray-900 text-white px-5 py-2 rounded-full transition"
+            className="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded-full font-semibold transition"
           >
-            Pay Now ₹700
+            Pay ₹700 Now
           </button>
         </div>
       </div>
@@ -118,3 +131,4 @@ const Premium = () => {
 };
 
 export default Premium;
+

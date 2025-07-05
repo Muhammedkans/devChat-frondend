@@ -1,8 +1,6 @@
 import React from 'react'
 import API from '../api'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-useQueryClient
-{useMutation}
 const useUploadprofile = () => {
 const queryClient = useQueryClient();
 

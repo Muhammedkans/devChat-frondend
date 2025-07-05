@@ -92,74 +92,75 @@ const UserSearchBar = () => {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search developers..."
-          className="w-full px-4 py-2 rounded-lg border border-gray-400 bg-white text-gray-800 focus:outline-none focus:ring focus:border-blue-500 shadow"
+          className="w-full px-4 py-2 rounded-xl bg-[#1F1F28] text-white border border-[#2F2F3A] placeholder-gray-400 focus:ring-2 focus:ring-[#0F82FF] focus:outline-none transition"
         />
       </form>
 
       <div className="space-y-4">
-        {!loadingStatus && results.map((user) => {
-          const userId = user._id.toString();
-          const isFollowing = followingIds.includes(userId);
-          const isRequested = requestedIds.includes(userId) || existingRequests.includes(userId);
-          const isFriend = friendsList.includes(userId);
+        {!loadingStatus &&
+          results.map((user) => {
+            const userId = user._id.toString();
+            const isFollowing = followingIds.includes(userId);
+            const isRequested = requestedIds.includes(userId) || existingRequests.includes(userId);
+            const isFriend = friendsList.includes(userId);
 
-          if (isOwnUser(userId)) return null;
+            if (isOwnUser(userId)) return null;
 
-          return (
-            <div
-              key={user._id}
-              className="bg-white text-gray-800 p-4 rounded-xl shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-            >
-              <Link to={`/users/${user._id}`} className="flex items-center gap-4">
-                <img
-                  src={user.photoUrl}
-                  alt="profile"
-                  className="w-14 h-14 rounded-full object-cover border-2 border-purple-400"
-                />
-                <div>
-                  <p className="font-semibold text-lg">{user.firstName} {user.lastName}</p>
-                  <p className="text-sm text-gray-500">{user.about || "No bio available"}</p>
+            return (
+              <div
+                key={user._id}
+                className="bg-[#1A1B1F] border border-[#2F2F3A] p-4 rounded-xl shadow-[0_0_20px_#0F82FF22] flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-white backdrop-blur-md"
+              >
+                <Link to={`/users/${user._id}`} className="flex items-center gap-4">
+                  <img
+                    src={user.photoUrl}
+                    alt="profile"
+                    className="w-14 h-14 rounded-full object-cover border-2 border-[#0F82FF]"
+                  />
+                  <div>
+                    <p className="font-semibold text-lg">{user.firstName} {user.lastName}</p>
+                    <p className="text-sm text-gray-400">{user.about || "No bio available"}</p>
+                  </div>
+                </Link>
+
+                <div className="flex flex-wrap gap-2 justify-end">
+                  {isFriend ? (
+                    <span className="bg-green-600/10 text-green-400 px-3 py-1 rounded-full text-sm font-medium">
+                      Friend ✓
+                    </span>
+                  ) : isRequested ? (
+                    <button
+                      disabled
+                      className="bg-yellow-600/10 text-yellow-300 px-3 py-1 rounded-full text-sm font-medium cursor-not-allowed"
+                    >
+                      Requested
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleAddFriend(userId)}
+                      className="bg-gradient-to-r from-green-500 to-lime-500 hover:brightness-110 text-white px-3 py-1 rounded-full text-sm font-medium transition"
+                    >
+                      Add Friend
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => handleFollowToggle(userId)}
+                    className={`px-3 py-1 rounded-full text-sm font-medium transition ${
+                      isFollowing
+                        ? "bg-[#2F2F3A] text-white hover:bg-[#444]"
+                        : "bg-gradient-to-r from-[#0F82FF] to-[#B44CFF] text-white hover:brightness-110"
+                    }`}
+                  >
+                    {isFollowing ? "Unfollow" : "Follow"}
+                  </button>
                 </div>
-              </Link>
-
-              <div className="flex flex-wrap gap-2 justify-end">
-                {isFriend ? (
-                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                    Friend ✓
-                  </span>
-                ) : isRequested ? (
-                  <button
-                    disabled
-                    className="bg-yellow-200 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium cursor-not-allowed"
-                  >
-                    Requested
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => handleAddFriend(userId)}
-                    className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-full text-sm font-medium"
-                  >
-                    Add Friend
-                  </button>
-                )}
-
-                <button
-                  onClick={() => handleFollowToggle(userId)}
-                  className={`px-3 py-1 rounded-full text-sm font-medium transition ${
-                    isFollowing
-                      ? "bg-gray-300 text-gray-800 hover:bg-gray-400"
-                      : "bg-blue-500 text-white hover:bg-blue-600"
-                  }`}
-                >
-                  {isFollowing ? "Unfollow" : "Follow"}
-                </button>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
 
         {results.length === 0 && query.trim() !== "" && !loadingStatus && (
-          <p className="text-center text-gray-500 mt-6">No users found</p>
+          <p className="text-center text-gray-400 mt-6">No users found</p>
         )}
       </div>
     </div>
@@ -167,6 +168,7 @@ const UserSearchBar = () => {
 };
 
 export default UserSearchBar;
+
 
 
 

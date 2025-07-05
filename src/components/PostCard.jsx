@@ -21,10 +21,8 @@ const PostCard = ({ post }) => {
 
   useEffect(() => {
     if (!socket) return;
-
     const handleLikeUpdate = ({ postId, userId, action }) => {
       if (postId !== post._id) return;
-
       setLikes((prev) => {
         if (action === "like" && !prev.includes(userId)) {
           return [...prev, userId];
@@ -34,20 +32,17 @@ const PostCard = ({ post }) => {
         return prev;
       });
     };
-
     socket.on("likeUpdate", handleLikeUpdate);
     return () => socket.off("likeUpdate", handleLikeUpdate);
   }, [socket, post._id]);
 
   useEffect(() => {
     if (!socket) return;
-
     const handleCommentCountUpdate = ({ postId, commentCount: newCount }) => {
       if (postId === post._id && typeof newCount === "number") {
         setCommentCount(newCount);
       }
     };
-
     socket.on("commentCountUpdate", handleCommentCountUpdate);
     return () => socket.off("commentCountUpdate", handleCommentCountUpdate);
   }, [socket, post._id]);
@@ -59,20 +54,15 @@ const PostCard = ({ post }) => {
 
   const handleLike = () => {
     if (!myUser?._id) return;
-
     const alreadyLiked = likes.includes(myUser._id);
     setLikes((prev) =>
       alreadyLiked ? prev.filter((id) => id !== myUser._id) : [...prev, myUser._id]
     );
-
-    if (socket) {
-      socket.emit("likeUpdate", {
-        postId: post._id,
-        userId: myUser._id,
-        action: alreadyLiked ? "unlike" : "like",
-      });
-    }
-
+    socket?.emit("likeUpdate", {
+      postId: post._id,
+      userId: myUser._id,
+      action: alreadyLiked ? "unlike" : "like",
+    });
     likeMutation.mutate({ hasLiked: alreadyLiked });
   };
 
@@ -84,34 +74,36 @@ const PostCard = ({ post }) => {
     "https://api.dicebear.com/7.x/initials/svg?seed=" + post.user?.firstName;
 
   return (
-    <div className="rounded-2xl shadow-sm border border-purple-100 bg-white transition hover:shadow-md mb-6 overflow-hidden">
-      {/* 🧑‍🎤 User Info */}
+    <div className="rounded-2xl border border-[#33364a] bg-[#1e1f24] backdrop-blur-md shadow-[0_0_10px_#0F82FF11] hover:shadow-[0_0_20px_#0F82FF33] transition-all duration-300 mb-6 text-white overflow-hidden">
+      
+      {/* 👤 User Info */}
       <div className="flex items-center justify-between px-5 py-4">
         <Link
           to={profileLink}
-          className="flex items-center gap-4 hover:bg-gray-50 p-2 rounded-lg transition"
+          className="flex items-center gap-4 hover:bg-[#2c2c34] p-2 rounded-lg transition"
         >
           <img
             src={profileImage}
             alt="User"
-            className="w-11 h-11 rounded-full object-cover ring-2 ring-purple-200"
+            className="w-11 h-11 rounded-full object-cover ring-2 ring-purple-400"
           />
           <div className="leading-tight">
-            <p className="font-semibold text-gray-900 text-sm">
+            <p className="font-semibold text-sm text-white">
               {post.user?.firstName} {post.user?.lastName}
             </p>
-            <p className="text-xs text-gray-500">{post.createdAt?.slice(0, 10)}</p>
+            <p className="text-xs text-gray-400">{post.createdAt?.slice(0, 10)}</p>
           </div>
         </Link>
       </div>
 
-      {/* ✏️ Post Content */}
+      {/* 📝 Post Text */}
       {post.contentText && (
-        <p className="px-5 pb-3 text-sm text-gray-800 whitespace-pre-wrap">
+        <p className="px-5 pb-3 text-sm text-gray-200 whitespace-pre-wrap">
           {post.contentText}
         </p>
       )}
 
+      {/* 🖼️ Post Image */}
       {post.contentImageUrl && (
         <img
           src={post.contentImageUrl}
@@ -120,8 +112,8 @@ const PostCard = ({ post }) => {
         />
       )}
 
-      {/* ❤️ Like + 💬 Comment Buttons */}
-      <div className="flex items-center px-5 py-3 gap-5 border-t text-gray-600">
+      {/* ❤️ + 💬 Actions */}
+      <div className="flex items-center px-5 py-3 gap-5 border-t border-[#2e2f3a] text-white">
         <button
           onClick={handleLike}
           className="flex items-center gap-1 hover:text-red-500 transition"
@@ -136,14 +128,14 @@ const PostCard = ({ post }) => {
 
         <button
           onClick={() => setShowComments((s) => !s)}
-          className="flex items-center gap-1 hover:text-blue-600 transition"
+          className="flex items-center gap-1 hover:text-blue-400 transition"
         >
           <FaRegComment className="text-lg" />
           <span className="text-sm">{commentCount}</span>
         </button>
       </div>
 
-      {/* 📝 Comments Section */}
+      {/* 💬 Comments Section */}
       {showComments && (
         <div className="px-5 pb-4 pt-2">
           <CommentForm postId={post._id} />
@@ -155,6 +147,7 @@ const PostCard = ({ post }) => {
 };
 
 export default PostCard;
+
 
 
 

@@ -38,9 +38,9 @@ const FeedPosts = () => {
   // 🌀 Loading UI
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64 bg-white rounded-lg shadow-md">
-        <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
-        <span className="ml-3 text-purple-600 font-medium">Loading your feed...</span>
+      <div className="flex justify-center items-center h-64 bg-gradient-to-tr from-[#1a1a1a] to-[#111] rounded-xl shadow-inner text-white">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        <span className="ml-3 text-blue-500 font-semibold">Loading your feed...</span>
       </div>
     );
   }
@@ -48,8 +48,8 @@ const FeedPosts = () => {
   // ❌ Error UI
   if (isError) {
     return (
-      <div className="text-center mt-8 text-red-500 text-sm">
-        Oops! Failed to load posts. Please try again later.
+      <div className="text-center mt-8 text-red-400 text-sm">
+        ❌ Oops! Failed to load posts. Please try again later.
       </div>
     );
   }
@@ -57,12 +57,12 @@ const FeedPosts = () => {
   // 📭 No posts yet
   if (posts.length === 0) {
     return (
-      <div className="flex flex-col items-center mt-16 text-center bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 p-6 rounded-xl shadow">
-        <p className="mb-2 text-xl font-semibold text-gray-800">Your feed is empty</p>
-        <p className="text-sm text-gray-600 mb-6">Follow developers to see their posts here!</p>
+      <div className="flex flex-col items-center mt-16 text-center bg-[#1E1F24] border border-[#2F2F3A] text-white p-6 rounded-2xl shadow-[0_0_20px_#0F82FF22] backdrop-blur-sm">
+        <p className="mb-2 text-xl font-semibold text-white">Your feed is empty</p>
+        <p className="text-sm text-gray-400 mb-6">Follow developers to see their posts here!</p>
         <Link
           to="/explore-developers"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#0F82FF] to-[#B44CFF] text-white rounded-full hover:brightness-110 transition"
         >
           <UserPlus className="h-4 w-4" />
           Find Developers
@@ -77,7 +77,7 @@ const FeedPosts = () => {
       {posts.map((post) => (
         <div
           key={post._id}
-          className="bg-white rounded-xl shadow-md border border-purple-200 hover:shadow-lg transition p-4 sm:p-6"
+          className="bg-[#1E1F24] border border-[#2F2F3A] rounded-2xl p-4 sm:p-6 shadow-[0_0_10px_#0F82FF11] hover:shadow-[0_0_20px_#0F82FF33] transition-all duration-300 backdrop-blur-sm"
         >
           <PostCard post={post} />
         </div>
@@ -87,6 +87,7 @@ const FeedPosts = () => {
 };
 
 export default FeedPosts;
+
 
 
 

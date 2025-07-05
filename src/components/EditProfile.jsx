@@ -36,10 +36,19 @@ const EditProfile = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const trimmedFirst = firstName.trim();
+    const trimmedLast = lastName.trim();
+    const trimmedAbout = about.trim();
+
+    if (!trimmedFirst || !trimmedLast || !trimmedAbout) {
+      toast.error("All fields are required.");
+      return;
+    }
+
     mutate({
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      about: about.trim(),
+      firstName: trimmedFirst,
+      lastName: trimmedLast,
+      about: trimmedAbout,
     });
   };
 
@@ -52,53 +61,58 @@ const EditProfile = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 p-4">
       <form
         onSubmit={handleSubmit}
-        className="bg-white w-full max-w-md p-6 rounded-2xl shadow-lg"
+        className="bg-white w-full max-w-md p-8 rounded-2xl shadow-xl border border-purple-200"
       >
-        <h2 className="text-2xl font-bold mb-4 text-center">Edit Profile</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
+          ✏️ Edit Profile
+        </h2>
 
         <div className="mb-4">
-          <label htmlFor="firstName" className="block text-sm font-medium mb-1">First Name</label>
+          <label htmlFor="firstName" className="block text-sm font-medium mb-1 text-gray-700">
+            First Name
+          </label>
           <input
             id="firstName"
             type="text"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
-            required
-            className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
         </div>
 
         <div className="mb-4">
-          <label htmlFor="lastName" className="block text-sm font-medium mb-1">Last Name</label>
+          <label htmlFor="lastName" className="block text-sm font-medium mb-1 text-gray-700">
+            Last Name
+          </label>
           <input
             id="lastName"
             type="text"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
-            required
-            className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
         </div>
 
         <div className="mb-6">
-          <label htmlFor="about" className="block text-sm font-medium mb-1">About</label>
+          <label htmlFor="about" className="block text-sm font-medium mb-1 text-gray-700">
+            About
+          </label>
           <textarea
             id="about"
+            rows="4"
             value={about}
             onChange={(e) => setAbout(e.target.value)}
-            rows="4"
-            required
-            className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none"
           ></textarea>
         </div>
 
         <button
           type="submit"
           disabled={isUpdating}
-          className="w-full bg-blue-600 text-white py-2 rounded-xl hover:bg-blue-700 transition disabled:opacity-50"
+          className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white py-2 rounded-xl font-semibold hover:opacity-90 transition disabled:opacity-50"
         >
           {isUpdating ? "Saving..." : "Save Changes"}
         </button>
@@ -108,3 +122,4 @@ const EditProfile = () => {
 };
 
 export default EditProfile;
+

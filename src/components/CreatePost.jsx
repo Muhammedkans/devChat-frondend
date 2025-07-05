@@ -61,37 +61,37 @@ const CreatePost = () => {
     <form
       onSubmit={handleSubmit}
       encType="multipart/form-data"
-      className="bg-gradient-to-tr from-pink-50 via-purple-50 to-blue-50 border border-purple-200 p-6 rounded-2xl shadow-lg space-y-4 transition-all duration-300"
+      className="rounded-2xl p-6 bg-[#1A1B1F] bg-opacity-80 backdrop-blur-lg shadow-[0_0_20px_#0F82FF22] border border-[#2F2F3A] space-y-4 text-white"
     >
-      <h2 className="text-lg font-bold text-purple-700">Create a Post</h2>
+      <h2 className="text-lg font-bold text-[#0F82FF]">Create a Post</h2>
 
       <textarea
         rows="3"
         placeholder="What's on your mind?"
         value={contentText}
         onChange={(e) => setContentText(e.target.value)}
-        className="w-full p-3 border border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none bg-white shadow-sm"
+        className="w-full p-3 bg-[#1F1F28] border border-[#333] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0F82FF] resize-none placeholder:text-gray-400 text-white"
       />
 
       <input
         type="file"
         accept="image/*"
         onChange={handlePhotoChange}
-        className="block text-sm text-gray-600"
+        className="block text-sm text-gray-400 file:bg-[#0F82FF] file:text-white file:rounded-lg file:px-3 file:py-1 file:cursor-pointer"
       />
 
       {preview && (
         <img
           src={preview}
           alt="Preview"
-          className="max-h-64 w-full object-contain rounded-lg border mt-2"
+          className="max-h-64 w-full object-contain rounded-lg border border-[#333] shadow-md mt-2"
         />
       )}
 
       <button
         type="submit"
         disabled={loading}
-        className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full font-semibold disabled:opacity-50 transition-all"
+        className="bg-gradient-to-r from-[#0F82FF] to-[#B44CFF] hover:brightness-110 px-5 py-2 rounded-full font-semibold transition-all duration-200 disabled:opacity-60"
       >
         {loading ? "Posting..." : "Post"}
       </button>
@@ -100,6 +100,7 @@ const CreatePost = () => {
 };
 
 export default CreatePost;
+
 
 
 

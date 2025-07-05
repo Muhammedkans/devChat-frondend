@@ -13,7 +13,7 @@ const Requests = () => {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const res = await axios.get(API_URL + "/request/review/recieved", {
+        const res = await axios.get(`${API_URL}/request/review/recieved`, {
           withCredentials: true,
         });
         dispatch(addRequests(res.data.data));
@@ -42,8 +42,8 @@ const Requests = () => {
   if (requests.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-pink-100 via-purple-100 to-blue-100">
-        <div className="text-center text-2xl text-gray-500 font-medium">
-          No Friend Requests Found 😔
+        <div className="text-center text-2xl text-gray-600 font-semibold">
+          😔 No Friend Requests Found <br /> Try connecting with more developers!
         </div>
       </div>
     );
@@ -58,7 +58,7 @@ const Requests = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {requests
-            .filter((req) => req?.fromUserId && req._id)
+            .filter((req) => req?._id && req?.fromUserId)
             .map((req) => {
               const user = req.fromUserId;
               return (
@@ -91,16 +91,16 @@ const Requests = () => {
                     </Link>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap justify-center">
                     <button
                       onClick={() => handleReview("rejected", req._id)}
-                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded-full text-sm"
+                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-full text-sm transition"
                     >
                       Reject
                     </button>
                     <button
                       onClick={() => handleReview("accepted", req._id)}
-                      className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded-full text-sm"
+                      className="bg-green-500 hover:bg-green-600 text-white px-4 py-1.5 rounded-full text-sm transition"
                     >
                       Accept
                     </button>
@@ -115,6 +115,8 @@ const Requests = () => {
 };
 
 export default Requests;
+
+
 
 
 

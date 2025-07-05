@@ -15,20 +15,22 @@ const ProfilePage = () => {
     }
   }, [error, navigate]);
 
-  if (isLoading) return <p className="text-center mt-10">Loading...</p>;
+  if (isLoading) return <p className="text-center mt-10">Loading profile...</p>;
 
   return (
     <div className="flex flex-col items-center w-full min-h-screen px-4 py-10 bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100">
-      {/* Profile Photo */}
+      {/* 👤 Profile Photo */}
       <Profilephoto />
 
-      {/* User Info */}
+      {/* 🔤 User Info */}
       <h2 className="text-2xl sm:text-3xl font-bold mt-4 text-center">
         {`${data?.firstName} ${data?.lastName}`}
       </h2>
-      <p className="text-sm sm:text-base text-gray-700 text-center mt-1 max-w-md">{data?.about}</p>
+      <p className="text-sm sm:text-base text-gray-700 text-center mt-1 max-w-md">
+        {data?.about || "No bio added."}
+      </p>
 
-      {/* Stats */}
+      {/* 📊 Stats */}
       <div className="flex justify-center gap-6 mt-6 text-center text-gray-800 w-full max-w-xs">
         <div>
           <div className="text-lg font-bold">{data.postsCount}</div>
@@ -44,7 +46,7 @@ const ProfilePage = () => {
         </div>
       </div>
 
-      {/* Edit Profile Button */}
+      {/* ✏️ Edit Profile */}
       <button
         className="mt-6 px-6 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100 transition text-sm font-medium"
         onClick={() => navigate('/editProfile')}
@@ -52,7 +54,7 @@ const ProfilePage = () => {
         ✏️ Edit Profile
       </button>
 
-      {/* Posts Grid */}
+      {/* 📸 Posts */}
       <div className="w-full max-w-6xl mt-10 px-2 sm:px-4">
         <h2 className="text-xl font-semibold mb-4 text-gray-800 text-center sm:text-left">
           📸 Your Posts
@@ -60,35 +62,43 @@ const ProfilePage = () => {
 
         {loadingPosts ? (
           <p className="text-center text-gray-500">Loading posts...</p>
-        ) : posts?.length === 0 ? (
-          <p className="text-center text-gray-500">No posts yet.</p>
+        ) : posts.length === 0 ? (
+          <p className="text-center text-gray-500">😶 No posts yet. Start sharing!</p>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            {posts.map((post) => (
-              (post.contentImageUrl || post.contentText) && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {posts.map((post) => {
+              const hasText = !!post.contentText?.trim();
+              const hasImage = !!post.contentImageUrl;
+
+              // Skip empty posts
+              if (!hasText && !hasImage) return null;
+
+              return (
                 <div
                   key={post._id}
-                  className="aspect-square bg-white rounded-lg overflow-hidden shadow hover:scale-105 transition p-2 flex flex-col justify-center items-center text-center"
+                  className="aspect-square bg-white rounded-lg overflow-hidden shadow hover:shadow-md hover:scale-[1.02] transition p-2 flex flex-col justify-center items-center text-center"
                 >
                   {/* 📝 Text */}
-                  {post.contentText && (
+                  {hasText && (
                     <p className="text-sm text-gray-800 mb-2 line-clamp-4">
                       {post.contentText}
                     </p>
                   )}
 
                   {/* 🖼️ Image */}
-                  {post.contentImageUrl && (
+                  {hasImage && (
                     <img
                       src={post.contentImageUrl}
                       alt="Post"
                       className="w-full h-full object-cover rounded"
-                      onError={(e) => (e.target.style.display = 'none')}
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none"; // 👈 only image hides, not whole card
+                      }}
                     />
                   )}
                 </div>
-              )
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -97,6 +107,7 @@ const ProfilePage = () => {
 };
 
 export default ProfilePage;
+
 
 
 
