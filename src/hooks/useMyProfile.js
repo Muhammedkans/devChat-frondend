@@ -11,9 +11,11 @@ const useMyProfile = () => {
     retry: false,
     refetchOnWindowFocus: false,
     staleTime: 0,
+    cacheTime: 0, // ✅ Add this line
   });
 };
 
 export default useMyProfile;
+
 
 
