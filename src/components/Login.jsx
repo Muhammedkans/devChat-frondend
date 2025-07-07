@@ -6,8 +6,8 @@ import { API_URL } from '../utils/constant';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Login = () => {
-  const [emailId, setEmailId] = useState("mondric@gmail.com");
-  const [password, setPassword] = useState("Mondric@123");
+  const [emailId, setEmailId] = useState("");
+  const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [error, setError] = useState("");
