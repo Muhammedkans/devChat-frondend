@@ -28,35 +28,37 @@ const FeedPage = () => {
   if (!user || isLoading || error?.response?.status === 401) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0D0C1D] via-[#15161C] to-[#0E0F13] px-2 sm:px-4 py-6 text-white">
-      <div className="flex flex-col lg:flex-row gap-6 max-w-7xl mx-auto">
+    <div className="min-h-screen px-2 sm:px-4 py-8">
+      <div className="flex flex-col lg:flex-row gap-8 max-w-7xl mx-auto">
 
         {/* Left Sidebar */}
         <aside className="lg:w-1/4 hidden lg:block">
-          <div className="rounded-2xl p-5 sticky top-4 bg-[#10131A] bg-opacity-90 backdrop-blur-xl shadow-[0_0_15px_#0F82FF22] border border-[#2F2F3A]">
+          <div className="rounded-3xl p-6 sticky top-24 bg-white dark:bg-[#10131A] bg-opacity-70 dark:bg-opacity-80 backdrop-blur-2xl shadow-xl border border-white/20 dark:border-[#2F2F3A] transition-all duration-300">
             <FeedSidebar />
           </div>
         </aside>
 
         {/* Main Feed */}
-        <main className="w-full lg:w-2/4 space-y-6">
-          {/* Search Bar */}
-          <div className="rounded-2xl p-5 bg-[#10131A] bg-opacity-90 backdrop-blur-xl shadow-[0_0_15px_#B44CFF22] border border-[#2F2F3A]">
+        <main className="w-full lg:w-2/4 space-y-8">
+          {/* Search Bar - Glass Effect */}
+          <div className="rounded-3xl p-6 bg-white dark:bg-[#10131A] bg-opacity-70 dark:bg-opacity-80 backdrop-blur-2xl shadow-xl border border-white/20 dark:border-[#2F2F3A] transition-all duration-300 transform hover:scale-[1.01]">
             <UserSearchBar />
           </div>
 
-          {/* Create Post */}
-          <div className="rounded-2xl p-5 bg-[#10131A] bg-opacity-90 backdrop-blur-xl shadow-[0_0_15px_#0F82FF22] border border-[#2F2F3A]">
+          {/* Create Post - Glass Effect */}
+          <div className="rounded-3xl p-6 bg-white dark:bg-[#10131A] bg-opacity-70 dark:bg-opacity-80 backdrop-blur-2xl shadow-xl border border-white/20 dark:border-[#2F2F3A] transition-all duration-300 transform hover:scale-[1.01]">
             <CreatePost />
           </div>
 
           {/* Posts Feed */}
-          <FeedPosts />
+          <div className="space-y-6">
+            <FeedPosts />
+          </div>
         </main>
 
         {/* Right Suggestions */}
         <aside className="lg:w-1/4 hidden lg:block">
-          <div className="rounded-2xl p-5 sticky top-4 bg-[#10131A] bg-opacity-90 backdrop-blur-xl shadow-[0_0_15px_#0F82FF22] border border-[#2F2F3A]">
+          <div className="rounded-3xl p-6 sticky top-24 bg-white dark:bg-[#10131A] bg-opacity-70 dark:bg-opacity-80 backdrop-blur-2xl shadow-xl border border-white/20 dark:border-[#2F2F3A] transition-all duration-300">
             <DeveloperSuggestions />
           </div>
         </aside>
