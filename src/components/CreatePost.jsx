@@ -1,9 +1,15 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import API from "../api"; // Axios instance
+import API from "../api";
+import { Image, Send, X, Smile, MapPin, Hash } from "lucide-react";
+import toast from "react-hot-toast";
+import useMyProfile from "../hooks/useMyProfile";
 
 const CreatePost = () => {
   const queryClient = useQueryClient();
+  const fileInputRef = useRef(null);
+  const { data: user } = useMyProfile();
+
   const [contentText, setContentText] = useState("");
   const [photo, setPhoto] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -21,11 +27,11 @@ const CreatePost = () => {
       setPhoto(null);
       setPreview(null);
       queryClient.invalidateQueries(["posts"]);
-      alert("✅ Post created successfully");
+      toast.success("Moment shared with the world!");
     },
     onError: (err) => {
       console.error("❌ Post error:", err);
-      alert("❌ Error: " + (err.response?.data?.message || err.message));
+      toast.error(err.response?.data?.message || err.message);
     },
     onSettled: () => {
       setLoading(false);
@@ -34,8 +40,8 @@ const CreatePost = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!contentText && !photo) {
-      alert("⚠️ Please enter some text or choose an image.");
+    if (!contentText.trim() && !photo) {
+      toast.error("Share some brilliance with the world.");
       return;
     }
 
@@ -57,45 +63,88 @@ const CreatePost = () => {
     }
   };
 
+  const removePhoto = () => {
+    setPhoto(null);
+    setPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   return (
-    <form
-      onSubmit={handleSubmit}
-      encType="multipart/form-data"
-      className="rounded-2xl p-6 bg-[#1A1B1F] bg-opacity-80 backdrop-blur-lg shadow-[0_0_20px_#0F82FF22] border border-[#2F2F3A] space-y-4 text-white"
-    >
-      <h2 className="text-lg font-bold text-[#0F82FF]">Create a Post</h2>
-
-      <textarea
-        rows="3"
-        placeholder="What's on your mind?"
-        value={contentText}
-        onChange={(e) => setContentText(e.target.value)}
-        className="w-full p-3 bg-[#1F1F28] border border-[#333] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0F82FF] resize-none placeholder:text-gray-400 text-white"
-      />
-
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handlePhotoChange}
-        className="block text-sm text-gray-400 file:bg-[#0F82FF] file:text-white file:rounded-lg file:px-3 file:py-1 file:cursor-pointer"
-      />
-
-      {preview && (
+    <div className="space-y-4">
+      <div className="flex gap-4 p-2 items-start">
         <img
-          src={preview}
-          alt="Preview"
-          className="max-h-64 w-full object-contain rounded-lg border border-[#333] shadow-md mt-2"
+          src={user?.photoUrl}
+          alt="User"
+          className="w-12 h-12 rounded-2xl object-cover border-2 border-white dark:border-[#2F2F3A] shadow-md"
         />
-      )}
+        <div className="flex-1 space-y-4">
+          <textarea
+            rows="3"
+            placeholder="Build something incredible today?"
+            value={contentText}
+            onChange={(e) => setContentText(e.target.value)}
+            className="w-full bg-transparent border-none outline-none text-base font-medium placeholder:text-gray-400 dark:text-gray-100 resize-none min-h-[80px]"
+          />
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="bg-gradient-to-r from-[#0F82FF] to-[#B44CFF] hover:brightness-110 px-5 py-2 rounded-full font-semibold transition-all duration-200 disabled:opacity-60"
-      >
-        {loading ? "Posting..." : "Post"}
-      </button>
-    </form>
+          {preview && (
+            <div className="relative group rounded-3xl overflow-hidden border border-gray-100 dark:border-[#2F2F3A] bg-gray-50 dark:bg-black/20">
+              <img src={preview} alt="Preview" className="max-h-80 w-full object-cover" />
+              <button
+                onClick={removePhoto}
+                className="absolute top-4 right-4 p-2 bg-black/50 text-white rounded-full hover:bg-red-500 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-[#2F2F3A]">
+            <div className="flex items-center gap-1 sm:gap-2">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoChange}
+                className="hidden"
+                ref={fileInputRef}
+              />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="p-3 rounded-xl hover:bg-[#0F82FF10] text-[#0F82FF] transition-all group"
+                title="Add Image"
+              >
+                <Image className="w-5 h-5 group-hover:scale-110" />
+              </button>
+              <button className="p-3 rounded-xl hover:bg-yellow-500/10 text-yellow-500 transition-all group" title="Emojis">
+                <Smile className="w-5 h-5 group-hover:scale-110" />
+              </button>
+              <button className="p-3 rounded-xl hover:bg-green-500/10 text-green-500 transition-all group hidden sm:block" title="Location">
+                <MapPin className="w-5 h-5 group-hover:scale-110" />
+              </button>
+              <button className="p-3 rounded-xl hover:bg-purple-500/10 text-purple-500 transition-all group hidden sm:block" title="Hashtags">
+                <Hash className="w-5 h-5 group-hover:scale-110" />
+              </button>
+            </div>
+
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="px-8 py-3 bg-[#0F82FF] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-blue-500/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:grayscale"
+            >
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  Sharing
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  Launch <Send className="w-3.5 h-3.5" />
+                </div>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

@@ -1,67 +1,45 @@
-import React from 'react'
+import React from 'react';
+import { Github, Twitter, Linkedin, Heart } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="fixed bottom-0 w-full bg-[#0B0E13] text-white border-t border-[#1F2937] backdrop-blur-md shadow-[0_-2px_15px_#0f82ff33] z-50">
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3 text-sm">
-        <div className="flex items-center gap-2">
-          <svg
-            width="26"
-            height="26"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="text-purple-400"
-          >
-            <path d="M22.672 15.226l-2.432.811..."></path>
-          </svg>
-          <p className="text-gray-400">
-            © {new Date().getFullYear()} devChat. All rights reserved.
+    <footer className="w-full bg-white/70 dark:bg-[#10131A]/80 backdrop-blur-2xl border-t border-gray-100 dark:border-[#2F2F3A] py-8 mt-auto z-50">
+      <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-6">
+
+        {/* 🚀 Brand & Copyright */}
+        <div className="flex flex-col items-center sm:items-start transition-all">
+          <h2 className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#0F82FF] to-[#B44CFF]">
+            devChat
+          </h2>
+          <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">
+            Build something incredible © {new Date().getFullYear()}
           </p>
         </div>
 
-        <div className="flex gap-4">
-          {/* Twitter */}
-          <a href="#" className="hover:text-blue-400 transition">
-            <svg
-              width="22"
-              height="22"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-              className="text-gray-400 hover:text-blue-400"
-            >
-              <path d="M24 4.557c-.883.392-1.832..."></path>
-            </svg>
-          </a>
+        {/* ❤️ Built with Love */}
+        <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+          Handcrafted with <Heart className="w-3 h-3 text-red-500 fill-red-500 animate-pulse" /> for Developers
+        </div>
 
-          {/* YouTube */}
-          <a href="#" className="hover:text-red-500 transition">
-            <svg
-              width="22"
-              height="22"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-              className="text-gray-400 hover:text-red-500"
+        {/* 🌐 Social Links */}
+        <div className="flex items-center gap-4">
+          {[
+            { icon: Github, href: "#", color: "hover:text-gray-900 dark:hover:text-white" },
+            { icon: Twitter, href: "#", color: "hover:text-[#1DA1F2]" },
+            { icon: Linkedin, href: "#", color: "hover:text-[#0A66C2]" },
+          ].map((social, idx) => (
+            <a
+              key={idx}
+              href={social.href}
+              className={`p-2.5 rounded-xl bg-gray-50 dark:bg-[#1A1B1F] border border-gray-100 dark:border-[#2F2F3A] text-gray-400 transition-all duration-300 hover:scale-110 ${social.color}`}
             >
-              <path d="M19.615 3.184c-3.604..."></path>
-            </svg>
-          </a>
-
-          {/* Facebook */}
-          <a href="#" className="hover:text-blue-600 transition">
-            <svg
-              width="22"
-              height="22"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-              className="text-gray-400 hover:text-blue-600"
-            >
-              <path d="M9 8h-3v4h3v12h5v..."></path>
-            </svg>
-          </a>
+              <social.icon className="w-4 h-4" />
+            </a>
+          ))}
         </div>
       </div>
     </footer>
-  )
-}
+  );
+};
 
-export default Footer
+export default Footer;

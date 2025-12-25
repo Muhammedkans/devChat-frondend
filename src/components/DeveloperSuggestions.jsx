@@ -1,11 +1,18 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../api";
 import { followUser, unfollowUser } from "../api/followApi";
-import { HiUserPlus, HiUserMinus, HiUserGroup } from "react-icons/hi2";
+import { UserPlus, UserMinus, Users, ShieldCheck, Search } from "lucide-react";
+import { useSocket } from "../context/SocketContext";
+import useMyProfile from "../hooks/useMyProfile";
+import toast from "react-hot-toast";
 
 const DeveloperSuggestions = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const { socket } = useSocket();
+  const { data: myProfile } = useMyProfile();
   const [loadingUserId, setLoadingUserId] = useState(null);
 
   const { data: suggestions = [], isLoading } = useQuery({
@@ -20,9 +27,25 @@ const DeveloperSuggestions = () => {
     mutationFn: async (toUserId) => {
       setLoadingUserId(toUserId);
       await API.post(`/request/send/interested/${toUserId}`);
+
+      // 🤝 Emit Real-time Socket Event
+      if (socket) {
+        socket.emit("sendConnectionRequest", {
+          toUserId,
+          fromUser: {
+            _id: myProfile._id,
+            firstName: myProfile.firstName,
+            lastName: myProfile.lastName,
+            photoUrl: myProfile.photoUrl
+          }
+        });
+      }
     },
-    onSuccess: () => queryClient.invalidateQueries(["dev-suggestions"]),
-    onError: () => alert("Something went wrong"),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["dev-suggestions"]);
+      toast.success("Connection request sent!");
+    },
+    onError: () => toast.error("Something went wrong"),
   });
 
   const toggleFollow = useMutation({
@@ -32,73 +55,91 @@ const DeveloperSuggestions = () => {
       else await followUser(toUserId);
     },
     onSuccess: () => queryClient.invalidateQueries(["dev-suggestions"]),
-    onError: () => alert("Something went wrong"),
+    onError: () => toast.error("Something went wrong"),
   });
 
-  if (isLoading) return <p className="text-sm text-gray-400">Loading suggestions...</p>;
+  if (isLoading) return (
+    <div className="space-y-4">
+      {[1, 2, 3].map(i => (
+        <div key={i} className="h-20 bg-gray-100 dark:bg-[#1A1B1F] rounded-2xl animate-pulse"></div>
+      ))}
+    </div>
+  );
 
   return (
-    <div className="bg-[#1A1B1F] border border-[#2F2F3A] p-4 rounded-2xl shadow-[0_0_20px_#0F82FF22] text-white backdrop-blur-md space-y-4 max-h-[80vh] overflow-y-auto">
-      <h2 className="text-lg font-semibold border-b border-[#333] pb-2 text-[#0F82FF]">
-        Developers You May Know
-      </h2>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between px-2">
+        <h2 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-[0.2em] flex items-center gap-2">
+          <Search className="w-4 h-4 text-[#0F82FF]" />
+          Tech Talent
+        </h2>
+        <span className="text-[10px] font-bold text-[#0F82FF] bg-[#0F82FF10] px-2 py-0.5 rounded-full uppercase">
+          New
+        </span>
+      </div>
 
-      {suggestions.length === 0 ? (
-        <p className="text-gray-400 text-sm">No suggestions available</p>
-      ) : (
-        suggestions.map((dev) => (
-          <div
-            key={dev._id}
-            className="flex items-center gap-4 bg-[#22232A] border border-[#2F2F3A] rounded-xl p-4 shadow hover:shadow-lg transition duration-300"
-          >
-            {/* Profile Image */}
-            <img
-              src={
-                dev.photoUrl ||
-                `https://api.dicebear.com/7.x/initials/svg?seed=${dev.firstName}`
-              }
-              alt={dev.firstName}
-              className="w-12 h-12 rounded-full object-cover border-2 border-[#0F82FF]"
-            />
+      <div className="space-y-4">
+        {suggestions.length === 0 ? (
+          <div className="text-center py-10 bg-gray-50 dark:bg-[#1A1B1F]/50 rounded-[2rem] border-2 border-dashed border-gray-100 dark:border-[#2F2F3A]">
+            <p className="text-xs font-bold text-gray-400 uppercase">Searching Area...</p>
+          </div>
+        ) : (
+          suggestions.map((dev) => (
+            <div
+              key={dev._id}
+              className="group relative flex flex-col p-5 bg-white dark:bg-[#13141F] rounded-[2rem] border border-gray-100 dark:border-[#2F2F3A] hover:border-[#0F82FF50] shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden"
+            >
+              {/* Profile Bio Section */}
+              <div className="flex items-start gap-4">
+                <div className="relative cursor-pointer" onClick={() => navigate(`/users/${dev._id}`)}>
+                  <img
+                    src={dev.photoUrl}
+                    alt={dev.firstName}
+                    className="w-12 h-12 rounded-2xl object-cover border-2 border-gray-100 dark:border-[#2F2F3A] group-hover:border-[#0F82FF] transition-colors"
+                  />
+                  {dev.isPremium && (
+                    <div className="absolute -top-1 -right-1 bg-yellow-400 p-0.5 rounded-full border border-white">
+                      <ShieldCheck className="w-2.5 h-2.5 text-white fill-white" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-black text-gray-900 dark:text-white truncate">
+                    {dev.firstName} {dev.lastName}
+                  </p>
+                  <p className="text-[10px] text-gray-500 dark:text-gray-400 line-clamp-1 mt-0.5">
+                    {dev.about || "Tech Enthusiast"}
+                  </p>
+                </div>
+              </div>
 
-            {/* Center content: Name, Bio, Buttons */}
-            <div className="flex flex-col flex-1">
-              <p className="font-semibold text-white text-sm">
-                {dev.firstName} {dev.lastName}
-              </p>
-              <p className="text-xs text-gray-400 mb-2">
-                {dev.about || "No bio available"}
-              </p>
-
-              <div className="flex gap-2 flex-wrap">
+              {/* Action Buttons */}
+              <div className="grid grid-cols-2 gap-2 mt-4">
                 <button
-                  onClick={() =>
-                    toggleFollow.mutate({ toUserId: dev._id, isFollowing: dev.isFollowing })
-                  }
+                  onClick={() => toggleFollow.mutate({ toUserId: dev._id, isFollowing: dev.isFollowing })}
                   disabled={toggleFollow.isLoading && loadingUserId === dev._id}
-                  className={`px-3 py-1 text-xs rounded-full flex items-center gap-1 transition-all duration-200 ${
-                    dev.isFollowing
-                      ? "bg-red-500 hover:bg-red-600 text-white"
-                      : "bg-gradient-to-r from-[#0F82FF] to-[#B44CFF] hover:brightness-110 text-white"
-                  }`}
+                  className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[10px] font-bold transition-all ${dev.isFollowing
+                      ? "bg-gray-100 dark:bg-[#2F2F3A] text-gray-600 dark:text-gray-300 hover:bg-red-50 hover:text-red-500"
+                      : "bg-[#0F82FF10] text-[#0F82FF] hover:bg-[#0F82FF] hover:text-white"
+                    }`}
                 >
-                  {dev.isFollowing ? <HiUserMinus /> : <HiUserPlus />}
+                  {dev.isFollowing ? <UserMinus className="w-3.5 h-3.5" /> : <UserPlus className="w-3.5 h-3.5" />}
                   {dev.isFollowing ? "Unfollow" : "Follow"}
                 </button>
 
                 <button
                   onClick={() => sendFriendRequest.mutate(dev._id)}
                   disabled={sendFriendRequest.isLoading && loadingUserId === dev._id}
-                  className="px-3 py-1 text-xs rounded-full bg-gradient-to-r from-green-500 to-lime-500 hover:brightness-110 text-white flex items-center gap-1 transition"
+                  className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gradient-to-r from-[#0F82FF] to-[#0F82FFCC] text-white text-[10px] font-bold shadow-lg shadow-blue-500/10 hover:shadow-blue-500/30 transition-all active:scale-95"
                 >
-                  <HiUserGroup />
-                  Add Friend
+                  <Users className="w-3.5 h-3.5" />
+                  Connect
                 </button>
               </div>
             </div>
-          </div>
-        ))
-      )}
+          ))
+        )}
+      </div>
     </div>
   );
 };

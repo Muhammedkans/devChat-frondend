@@ -1,79 +1,78 @@
-import axios from "axios";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate, Link } from "react-router-dom";
 import useMyProfile from "../hooks/useMyProfile";
-import { API_URL } from "../utils/constant";
-import { useSocket } from "../context/SocketContext";
+import { User, ShieldCheck, Heart, Grid, Users, Layout } from "lucide-react";
 
 const FeedSidebar = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const { data: user, isLoading, isError, error } = useMyProfile();
-  const { disconnectSocket } = useSocket();
-
-  useEffect(() => {
-    if (error?.response?.status === 401) {
-      navigate("/login");
-    }
-  }, [error, navigate]);
-
-  const handleLogout = async () => {
-    try {
-      await axios.post(`${API_URL}/logout`, {}, { withCredentials: true });
-
-     queryClient.removeQueries(['my-profile']);
-      queryClient.invalidateQueries(['my-profile']);
-      queryClient.clear(); // Optional: clear all if needed
-
-      disconnectSocket();
-      navigate("/login");
-    } catch (err) {
-      console.error("Logout failed", err);
-    }
-  };
+  const { data: user, isLoading } = useMyProfile();
 
   if (isLoading) {
-    return <div className="p-4 text-center text-sm text-gray-400">Loading...</div>;
+    return (
+      <div className="space-y-4 animate-pulse">
+        <div className="w-20 h-20 bg-gray-200 dark:bg-[#1A1B1F] rounded-full mx-auto"></div>
+        <div className="h-4 bg-gray-200 dark:bg-[#1A1B1F] rounded-full w-3/4 mx-auto"></div>
+        <div className="h-3 bg-gray-200 dark:bg-[#1A1B1F] rounded-full w-1/2 mx-auto"></div>
+      </div>
+    );
   }
 
-  if (isError) {
-    return <div className="p-4 text-center text-sm text-red-500">Failed to load profile.</div>;
-  }
+  const stats = [
+    { label: "Posts", value: user?.postsCount || 0, icon: Layout },
+    { label: "Fans", value: user?.followersCount || 0, icon: Users },
+  ];
 
   return (
-    <div className="bg-[#10131a] border border-[#2F2F3A] p-6 rounded-2xl shadow-[0_0_15px_#0F82FF22] text-white text-center space-y-5">
-      {/* 🧑‍💻 Avatar */}
-      <img
-        src={
-          user?.photoUrl ||
-          `https://api.dicebear.com/7.x/initials/svg?seed=${user?.firstName}`
-        }
-        alt="Profile"
-        className="w-24 h-24 mx-auto rounded-full object-cover border-4 border-[#0F82FF] shadow"
-      />
-
-      {/* 👤 Name + Premium */}
-      <div>
-        <p className="text-xl font-semibold text-white">
-          {user?.firstName} {user?.lastName}
-        </p>
-        {user?.isPremium && (
-          <span className="mt-2 inline-block text-sm font-medium text-blue-400 bg-[#0f82ff1a] px-3 py-1 rounded-full">
-            ⭐ Premium Member
-          </span>
-        )}
+    <div className="flex flex-col items-center">
+      {/* 👤 Profile Header */}
+      <div className="relative group cursor-pointer" onClick={() => navigate('/profile')}>
+        <div className="absolute inset-0 bg-gradient-to-tr from-[#0F82FF] to-[#B44CFF] rounded-full blur-md opacity-20 group-hover:opacity-50 transition-opacity duration-500"></div>
+        <img
+          src={user?.photoUrl}
+          alt="Profile"
+          className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-[#10131A] shadow-xl relative z-10 transition-transform duration-500 group-hover:scale-105"
+        />
       </div>
 
-      {/* 🔘 Logout */}
-      <button
-        onClick={handleLogout}
-        className="w-full bg-gradient-to-r from-red-500 to-pink-500 hover:brightness-110 text-white font-medium py-2 rounded-full transition"
-      >
-        Logout
-      </button>
+      <div className="mt-6 text-center space-y-1">
+        <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">
+          {user?.firstName} {user?.lastName}
+        </h3>
+        <p className="text-[10px] font-bold text-[#0F82FF] uppercase tracking-[0.2em]">
+          {user?.isPremium ? "Elite Member" : "Developer"}
+        </p>
+      </div>
+
+      {/* 📊 Quick Stats */}
+      <div className="grid grid-cols-2 gap-4 w-full mt-8 pt-8 border-t border-gray-100 dark:border-[#2F2F3A]">
+        {stats.map((stat, idx) => (
+          <div key={idx} className="text-center group">
+            <p className="text-lg font-black text-gray-900 dark:text-white group-hover:text-[#0F82FF] transition-colors">
+              {stat.value}
+            </p>
+            <p className="text-[8px] font-bold text-gray-500 uppercase tracking-widest">
+              {stat.label}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* 🧭 Quick Links */}
+      <div className="w-full mt-8 space-y-2">
+        <button
+          onClick={() => navigate('/profile')}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-[#0F82FF10] text-[#0F82FF] text-xs font-bold hover:bg-[#0F82FF] hover:text-white transition-all duration-300 group"
+        >
+          <User className="w-4 h-4 group-hover:scale-110 transition-transform" />
+          View Profile
+        </button>
+        <Link
+          to="/premium"
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-gradient-to-r from-yellow-500/10 to-orange-500/10 text-yellow-600 dark:text-yellow-500 text-xs font-bold hover:from-yellow-500 hover:to-orange-500 hover:text-white transition-all duration-300 group"
+        >
+          <ShieldCheck className="w-4 h-4 group-hover:scale-110 transition-transform" />
+          Elite Badge
+        </Link>
+      </div>
     </div>
   );
 };
