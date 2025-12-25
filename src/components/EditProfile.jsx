@@ -13,12 +13,14 @@ const EditProfile = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [about, setAbout] = useState("");
+  const [careerStatus, setCareerStatus] = useState("Just Exploring");
 
   useEffect(() => {
     if (profile) {
       setFirstName(profile.firstName || "");
       setLastName(profile.lastName || "");
       setAbout(profile.about || "");
+      setCareerStatus(profile.careerStatus || "Just Exploring");
     }
   }, [profile]);
 
@@ -49,6 +51,7 @@ const EditProfile = () => {
       firstName: trimmedFirst,
       lastName: trimmedLast,
       about: trimmedAbout,
+      careerStatus
     });
   };
 
@@ -94,6 +97,23 @@ const EditProfile = () => {
             onChange={(e) => setLastName(e.target.value)}
             className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="careerStatus" className="block text-sm font-medium mb-1 text-gray-700">
+            Career Status
+          </label>
+          <select
+            id="careerStatus"
+            value={careerStatus}
+            onChange={(e) => setCareerStatus(e.target.value)}
+            className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white"
+          >
+            <option value="Just Exploring">Just Exploring 🧐</option>
+            <option value="Open to Work">Open to Work ✅</option>
+            <option value="Hiring">Hiring 💼</option>
+            <option value="Mentoring">Mentoring 🤝</option>
+          </select>
         </div>
 
         <div className="mb-6">

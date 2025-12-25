@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getProfileAnalytics } from '../api/analyticsApi';
 import { Eye, Edit3, Settings, Grid, Heart, MessageSquare, Star, Crown } from 'lucide-react';
+import PortfolioGrid from './portfolio/PortfolioGrid';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -49,6 +50,16 @@ const ProfilePage = () => {
                   {user?.isPremium && <Crown className="w-3 h-3" />}
                   {user?.isPremium ? 'Premium Member' : 'Standard Member'}
                 </div>
+
+                {/* Career Status Badge */}
+                {user?.careerStatus && user.careerStatus !== 'Just Exploring' && (
+                  <div className={`mt-2 block w-fit mx-auto items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${user.careerStatus === 'Open to Work' ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 border-green-200 dark:border-green-800' :
+                      user.careerStatus === 'Hiring' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-800' :
+                        'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800'
+                    }`}>
+                    {user.careerStatus === 'Open to Work' ? '✅' : user.careerStatus === 'Hiring' ? '💼' : '🤝'} {user.careerStatus}
+                  </div>
+                )}
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-4 leading-relaxed line-clamp-3">
                   {user?.about || "No bio added yet. Add one to stand out!"}
                 </p>
@@ -113,6 +124,13 @@ const ProfilePage = () => {
 
         {/* 📸 Main Content Area: Posts Grid */}
         <div className="w-full lg:w-2/3">
+          {/* 💻 Portfolio Section */}
+          <div className="mb-12">
+            <PortfolioGrid userId={user?._id} isOwner={true} />
+          </div>
+
+          <div className="h-px bg-gray-200 dark:bg-[#2F2F3A] mb-12"></div>
+
           <div className="flex items-center gap-4 mb-8">
             <div className="p-3 bg-white dark:bg-[#10131A] rounded-2xl shadow-md border border-gray-100 dark:border-[#2F2F3A] text-[#0F82FF]">
               <Grid className="w-6 h-6" />

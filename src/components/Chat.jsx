@@ -10,15 +10,12 @@ import {
   Mic,
   Send,
   StopCircle,
-  Play,
-  Pause,
   Trash2,
-  Plus,
-  Smile,
-  Image as ImageIcon,
   Paperclip,
-  X,
-  Volume2
+  Smile,
+  Volume2,
+  MessageSquare,
+  Lock
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -51,9 +48,9 @@ const Chat = () => {
           withCredentials: true,
         });
 
-        const chatMessages = res?.data?.messages.map((msg) => ({
-          firstName: msg.senderId?.firstName,
-          lastName: msg.senderId?.lastName,
+        const chatMessages = (res?.data?.messages || []).map((msg) => ({
+          firstName: msg.senderId?.firstName || "Unknown",
+          lastName: msg.senderId?.lastName || "",
           text: msg.text,
           audioUrl: msg.audioUrl,
           messageType: msg.messageType || 'text',
@@ -65,6 +62,7 @@ const Chat = () => {
         setMessages(chatMessages);
       } catch (err) {
         console.error('❌ Failed to fetch chat:', err.message);
+        toast.error("Could not load messages");
       }
     };
 
@@ -104,7 +102,7 @@ const Chat = () => {
       setRecordingTime(0);
       timerRef.current = setInterval(() => setRecordingTime(t => t + 1), 1000);
     } catch (err) {
-      toast.error("Microphone access denied. Please check your settings.");
+      toast.error("Microphone access denied. Please check permission.");
     }
   };
 
@@ -121,7 +119,7 @@ const Chat = () => {
     formData.append('audio', audioBlob, 'voice-note.webm');
 
     try {
-      toast.loading("Broadcasting voice...", { id: 'audio-upload' });
+      toast.loading("Sending voice...", { id: 'audio-upload' });
       const res = await axios.post(`${API_URL}/chat/upload-audio`, formData, {
         withCredentials: true,
         headers: { 'Content-Type': 'multipart/form-data' }
@@ -134,9 +132,10 @@ const Chat = () => {
       });
 
       setAudioBlob(null);
-      toast.success("Voice memo deployed", { id: 'audio-upload' });
+      toast.success("Voice memo sent", { id: 'audio-upload' });
     } catch (err) {
-      toast.error("Deployment failed", { id: 'audio-upload' });
+      console.error(err);
+      toast.error("Failed to send voice memo", { id: 'audio-upload' });
     }
   };
 
@@ -165,19 +164,19 @@ const Chat = () => {
   };
 
   return (
-    <div className="h-[calc(100vh-140px)] flex flex-col bg-white/70 dark:bg-[#10131A]/80 backdrop-blur-3xl border border-white/20 dark:border-[#2F2F3A] rounded-[3rem] shadow-2xl overflow-hidden transition-all duration-700 m-2 sm:m-6">
+    <div className="h-[calc(100vh-6rem)] flex flex-col bg-white/70 dark:bg-[#10131A]/80 backdrop-blur-3xl border border-white/20 dark:border-[#2F2F3A] rounded-2xl md:rounded-[2.5rem] shadow-2xl overflow-hidden transition-all duration-700 m-2 sm:m-4 md:m-6">
 
-      {/* 🔝 Chat Header - Custom Premium Look */}
+      {/* 🔝 Chat Header */}
       <ChatHeader userId={targetUserId} />
 
-      {/* 💬 Chat Body - Deep Atmosphere */}
-      <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-8 space-y-6 scrollbar-hide dark:bg-[#0D0C1D]/30">
+      {/* 💬 Chat Body */}
+      <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-6 space-y-6 scrollbar-hide dark:bg-[#0D0C1D]/30">
         {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full opacity-30 select-none">
+          <div className="flex flex-col items-center justify-center h-full opacity-40 select-none">
             <div className="w-20 h-20 bg-[#0F82FF20] rounded-full flex items-center justify-center mb-4">
-              <MessageSquare className="w-8 h-8 text-[#0F82FF]" />
+              <Lock className="w-8 h-8 text-[#0F82FF]" />
             </div>
-            <p className="text-xs font-black uppercase tracking-[0.4em]">Society Secure Channel</p>
+            <p className="text-xs font-black uppercase tracking-[0.4em] text-gray-500">End-to-End Encrypted</p>
           </div>
         ) : (
           messages.map((msg, index) => {
@@ -197,7 +196,7 @@ const Chat = () => {
                 )}
 
                 <div
-                  className={`relative group max-w-[85%] sm:max-w-[70%] px-5 py-3.5 rounded-[1.8rem] transition-all duration-300 ${isMyMessage
+                  className={`relative group max-w-[85%] sm:max-w-[70%] px-5 py-3.5 rounded-[1.5rem] transition-all duration-300 ${isMyMessage
                     ? 'bg-[#0F82FF] text-white rounded-br-none shadow-[0_10px_20px_rgba(15,130,255,0.2)]'
                     : 'bg-white dark:bg-[#1A1B1F] text-gray-800 dark:text-gray-100 rounded-bl-none border border-gray-100 dark:border-[#2F2F3A] shadow-lg'
                     }`}
@@ -217,7 +216,7 @@ const Chat = () => {
                       />
                     </div>
                   ) : (
-                    <p className="text-sm font-medium leading-relaxed selection:bg-white/30">{msg.text}</p>
+                    <p className="text-sm font-medium leading-relaxed">{msg.text}</p>
                   )}
 
                   <div className={`flex items-center gap-2 mt-2 justify-end opacity-0 group-hover:opacity-60 transition-opacity duration-300`}>
@@ -231,17 +230,17 @@ const Chat = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* 📝 Input Section - Integrated Design */}
-      <div className="p-4 sm:p-8 bg-white/50 dark:bg-[#10131A]/50 border-t border-gray-100 dark:border-[#2F2F3A] backdrop-blur-3xl">
+      {/* 📝 Input Section */}
+      <div className="p-4 sm:p-6 bg-white/50 dark:bg-[#10131A]/50 border-t border-gray-100 dark:border-[#2F2F3A] backdrop-blur-3xl">
         {audioBlob ? (
-          <div className="flex items-center justify-between bg-[#0F82FF10] p-4 rounded-[2rem] border border-[#0F82FF20] animate-in slide-in-from-bottom-4 duration-500">
+          <div className="flex items-center justify-between bg-[#0F82FF10] p-4 rounded-[1.5rem] border border-[#0F82FF20] animate-in slide-in-from-bottom-4 duration-500">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 bg-[#0F82FF] rounded-full flex items-center justify-center animate-pulse">
                 <Volume2 className="w-5 h-5 text-white" />
               </div>
               <div className="text-left">
-                <p className="text-[10px] font-black text-[#0F82FF] uppercase tracking-[0.2em]">Voice Ready</p>
-                <p className="text-[9px] text-gray-500 font-bold uppercase">Encrypted Signal</p>
+                <p className="text-[10px] font-black text-[#0F82FF] uppercase tracking-[0.2em]">Ready to Send</p>
+                <p className="text-[9px] text-gray-500 font-bold uppercase">Audio Clip Detected</p>
               </div>
             </div>
             <div className="flex gap-2">
@@ -255,7 +254,7 @@ const Chat = () => {
                 onClick={sendAudioMessage}
                 className="px-8 py-3 bg-[#0F82FF] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-blue-500/30 hover:scale-105 active:scale-95 transition-all"
               >
-                Deploy <Send className="w-4 h-4 inline ml-2" />
+                Send <Send className="w-4 h-4 inline ml-2" />
               </button>
             </div>
           </div>
@@ -278,8 +277,8 @@ const Chat = () => {
                 onKeyDown={handleKeyDown}
                 disabled={isRecording}
                 type="text"
-                placeholder={isRecording ? "Recording Signal..." : "Enter secure transmission..."}
-                className="w-full bg-gray-100/50 dark:bg-[#1A1B1F]/50 border border-gray-200 dark:border-[#2F2F3A] rounded-[1.8rem] px-6 py-4 text-sm font-medium focus:outline-none focus:ring-2 ring-[#0F82FF50] dark:text-white transition-all shadow-inner"
+                placeholder={isRecording ? "Listening..." : "Type your message..."}
+                className="w-full bg-gray-100/50 dark:bg-[#1A1B1F]/50 border border-gray-200 dark:border-[#2F2F3A] rounded-[1.5rem] px-6 py-4 text-sm font-medium focus:outline-none focus:ring-2 ring-[#0F82FF50] dark:text-white transition-all shadow-inner"
               />
               <div className="absolute top-1/2 right-4 -translate-y-1/2 flex items-center gap-2">
                 {isRecording && (
@@ -323,63 +322,3 @@ const Chat = () => {
 };
 
 export default Chat;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

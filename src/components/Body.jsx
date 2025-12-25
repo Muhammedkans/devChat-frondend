@@ -17,9 +17,14 @@ const Body = () => {
     error,
   } = useMyProfile();
 
+  const isLoginPage = location.pathname === "/login";
+
   useEffect(() => {
-    if (isError && error?.response?.status === 401) {
-      navigate('/login');
+    if (isError) {
+      const status = error?.response?.status;
+      if (status === 401 || status === 400 || status === 403) {
+        navigate('/login');
+      }
     }
   }, [isError, error, navigate]);
 
@@ -32,7 +37,7 @@ const Body = () => {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,transparent_0%,rgba(15,130,255,0.02)_100%)]"></div>
       </div>
 
-      <Navbar />
+      {!isLoginPage && <Navbar />}
 
       <main className="flex-1 relative z-10">
         {isLoading ? (
@@ -47,7 +52,7 @@ const Body = () => {
         )}
       </main>
 
-      {!isChatPage && <Footer />}
+      {!isChatPage && !isLoginPage && <Footer />}
     </div>
   );
 };

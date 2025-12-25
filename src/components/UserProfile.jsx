@@ -17,6 +17,7 @@ import useUserProfile from "../hooks/useUserProfile"; // Confirmed this exists (
 import useUserPosts from "../hooks/useUserPosts"; // Correct hook
 import { followUser, unfollowUser } from "../api/followApi";
 import toast from "react-hot-toast";
+import PortfolioGrid from "./portfolio/PortfolioGrid";
 
 const UserProfile = () => {
   const { userId } = useParams();
@@ -116,6 +117,16 @@ const UserProfile = () => {
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0F82FF10] text-[#0F82FF] font-black text-[10px] uppercase tracking-widest border border-[#0F82FF20]">
                 {user.isPremium ? "Elite Member" : "MERN Developer"}
               </div>
+
+              {/* Career Status on Public Profile */}
+              {user.careerStatus && user.careerStatus !== 'Just Exploring' && (
+                <div className={`mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ml-2 ${user.careerStatus === 'Open to Work' ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 border-green-200 dark:border-green-800' :
+                    user.careerStatus === 'Hiring' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-800' :
+                      'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800'
+                  }`}>
+                  {user.careerStatus === 'Open to Work' ? '✅' : user.careerStatus === 'Hiring' ? '💼' : '🤝'} {user.careerStatus}
+                </div>
+              )}
             </div>
 
             <p className="text-lg text-gray-600 dark:text-gray-400 max-w-xl leading-relaxed font-medium">
@@ -143,8 +154,8 @@ const UserProfile = () => {
               <button
                 onClick={handleFollowToggle}
                 className={`flex items-center justify-center gap-3 px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 shadow-lg ${user.isFollowing
-                    ? "bg-gray-100 dark:bg-[#1A1B1F] text-gray-900 dark:text-white border border-gray-200 dark:border-[#2F2F3A]"
-                    : "bg-[#0F82FF] text-white shadow-blue-500/20 hover:scale-105 active:scale-95"
+                  ? "bg-gray-100 dark:bg-[#1A1B1F] text-gray-900 dark:text-white border border-gray-200 dark:border-[#2F2F3A]"
+                  : "bg-[#0F82FF] text-white shadow-blue-500/20 hover:scale-105 active:scale-95"
                   }`}
               >
                 {user.isFollowing ? <UserCheck className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
@@ -162,6 +173,13 @@ const UserProfile = () => {
           </div>
         </div>
       </div>
+
+      {/* 💻 Portfolio Section */}
+      <div className="mb-16">
+        <PortfolioGrid userId={userId} isOwner={false} />
+      </div>
+
+      <div className="h-px bg-gray-100 dark:bg-[#2F2F3A] mb-12"></div>
 
       {/* 🖼️ Premium Posts Grid */}
       <div className="space-y-10">

@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { API_URL } from "../utils/constant";
 import { useSocket } from "../context/SocketContext";
 import useMyProfile from "../hooks/useMyProfile";
+import UserSearchBar from "./UserSearchbar";
 import {
   Bell,
   MessageCircle,
@@ -19,6 +20,7 @@ import {
   LayoutGrid
 } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
+import NotificationDropdown from "./NotificationDropdown";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -59,13 +61,8 @@ const Navbar = () => {
             devChat
           </Link>
 
-          <div className="hidden md:flex items-center gap-3 bg-gray-100 dark:bg-[#1A1B1F] border border-gray-200 dark:border-[#2F2F3A] px-4 py-2 rounded-2xl focus-within:ring-2 ring-[#0F82FF50] transition-all">
-            <Search className="w-4 h-4 text-gray-500" />
-            <input
-              type="text"
-              placeholder="Search developers..."
-              className="bg-transparent border-none outline-none text-xs font-bold text-gray-700 dark:text-gray-300 w-48 placeholder:text-gray-500"
-            />
+          <div className="hidden md:block w-64 lg:w-96 relative z-50">
+            <UserSearchBar />
           </div>
         </div>
 
@@ -73,11 +70,11 @@ const Navbar = () => {
         <div className="hidden lg:flex items-center gap-1 bg-gray-50/50 dark:bg-[#1A1B1F]/50 p-1 rounded-2xl border border-gray-100 dark:border-[#2F2F3A]">
           {navLinks.map((link) => (
             <Link
-              key={link.path}
+              key={link.name}
               to={link.path}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 ${location.pathname === link.path
-                  ? "bg-[#0F82FF] text-white shadow-lg shadow-blue-500/20"
-                  : "text-gray-500 hover:text-[#0F82FF] hover:bg-[#0F82FF10]"
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 ${location.pathname.startsWith(link.path)
+                ? "bg-[#0F82FF] text-white shadow-lg shadow-blue-500/20"
+                : "text-gray-500 hover:text-[#0F82FF] hover:bg-[#0F82FF10]"
                 }`}
             >
               <link.icon className="w-4 h-4" />
@@ -99,10 +96,7 @@ const Navbar = () => {
             </button>
 
             {/* Notifications */}
-            <button className="relative p-3 rounded-2xl bg-gray-100 dark:bg-[#1A1B1F] border border-gray-200 dark:border-[#2F2F3A] hover:bg-[#0F82FF15] text-[#0F82FF] transition-all group">
-              <Bell className="w-4 h-4 group-hover:rotate-12 transition-transform" />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-[#10131A]"></span>
-            </button>
+            <NotificationDropdown />
 
             {/* Profile Dropdown */}
             <div className="dropdown dropdown-end relative">

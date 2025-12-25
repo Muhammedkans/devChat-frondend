@@ -38,9 +38,9 @@ const FeedPosts = () => {
   // 🌀 Loading UI
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64 bg-gradient-to-tr from-[#1a1a1a] to-[#111] rounded-xl shadow-inner text-white">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-        <span className="ml-3 text-blue-500 font-semibold">Loading your feed...</span>
+      <div className="flex justify-center items-center h-64 bg-white/70 dark:bg-[#10131A]/80 border border-white/20 dark:border-[#2F2F3A] rounded-[2rem] shadow-xl backdrop-blur-3xl">
+        <Loader2 className="h-8 w-8 animate-spin text-[#0F82FF]" />
+        <span className="ml-3 text-[#0F82FF] font-black uppercase tracking-widest text-xs">Syncing Feed...</span>
       </div>
     );
   }
@@ -48,8 +48,8 @@ const FeedPosts = () => {
   // ❌ Error UI
   if (isError) {
     return (
-      <div className="text-center mt-8 text-red-400 text-sm">
-        ❌ Oops! Failed to load posts. Please try again later.
+      <div className="text-center mt-8 text-red-500 text-sm font-bold bg-red-100 dark:bg-red-900/20 p-4 rounded-2xl border border-red-200 dark:border-red-500/20">
+        ❌ Connection signal lost. Unable to retrieve feed.
       </div>
     );
   }
@@ -57,15 +57,15 @@ const FeedPosts = () => {
   // 📭 No posts yet
   if (posts.length === 0) {
     return (
-      <div className="flex flex-col items-center mt-16 text-center bg-[#1E1F24] border border-[#2F2F3A] text-white p-6 rounded-2xl shadow-[0_0_20px_#0F82FF22] backdrop-blur-sm">
-        <p className="mb-2 text-xl font-semibold text-white">Your feed is empty</p>
-        <p className="text-sm text-gray-400 mb-6">Follow developers to see their posts here!</p>
+      <div className="flex flex-col items-center mt-16 text-center bg-white/70 dark:bg-[#10131A]/80 border border-white/20 dark:border-[#2F2F3A] p-8 rounded-[2rem] shadow-xl backdrop-blur-3xl">
+        <p className="mb-2 text-xl font-black text-gray-900 dark:text-white">Your feed is waiting for a spark</p>
+        <p className="text-sm text-gray-500 mb-6 font-medium">Connect with developers to ignite your timeline!</p>
         <Link
-          to="/explore-developers"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#0F82FF] to-[#B44CFF] text-white rounded-full hover:brightness-110 transition"
+          to="/connection"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-[#0F82FF] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg hover:scale-105 active:scale-95 transition-all"
         >
           <UserPlus className="h-4 w-4" />
-          Find Developers
+          Build Network
         </Link>
       </div>
     );
@@ -73,11 +73,11 @@ const FeedPosts = () => {
 
   // ✅ Render posts
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {posts.map((post) => (
         <div
           key={post._id}
-          className="bg-[#1E1F24] border border-[#2F2F3A] rounded-2xl p-4 sm:p-6 shadow-[0_0_10px_#0F82FF11] hover:shadow-[0_0_20px_#0F82FF33] transition-all duration-300 backdrop-blur-sm"
+          className="bg-white/70 dark:bg-[#10131A]/80 border border-white/20 dark:border-[#2F2F3A] rounded-[2rem] p-0 shadow-xl hover:shadow-2xl hover:scale-[1.005] transition-all duration-500 backdrop-blur-3xl overflow-hidden group"
         >
           <PostCard post={post} />
         </div>

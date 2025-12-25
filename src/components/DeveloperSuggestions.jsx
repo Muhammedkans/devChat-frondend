@@ -68,71 +68,76 @@ const DeveloperSuggestions = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between px-2">
-        <h2 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-[0.2em] flex items-center gap-2">
-          <Search className="w-4 h-4 text-[#0F82FF]" />
-          Tech Talent
+      <div className="flex items-center justify-between px-2 mb-2">
+        <h2 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2">
+          <Search className="w-3 h-3 text-[#0F82FF]" />
+          Scouted Talent
         </h2>
-        <span className="text-[10px] font-bold text-[#0F82FF] bg-[#0F82FF10] px-2 py-0.5 rounded-full uppercase">
-          New
+        <span className="text-[9px] font-bold text-white bg-gradient-to-r from-[#0F82FF] to-[#B44CFF] px-2 py-0.5 rounded-full shadow-lg shadow-blue-500/20">
+          FEATURED
         </span>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         {suggestions.length === 0 ? (
-          <div className="text-center py-10 bg-gray-50 dark:bg-[#1A1B1F]/50 rounded-[2rem] border-2 border-dashed border-gray-100 dark:border-[#2F2F3A]">
-            <p className="text-xs font-bold text-gray-400 uppercase">Searching Area...</p>
+          <div className="text-center py-12 px-4 bg-white/40 dark:bg-[#1A1B1F]/40 rounded-[2rem] border-2 border-dashed border-gray-100 dark:border-[#2F2F3A] backdrop-blur-md">
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest animate-pulse">Scanning Network...</p>
           </div>
         ) : (
           suggestions.map((dev) => (
             <div
               key={dev._id}
-              className="group relative flex flex-col p-5 bg-white dark:bg-[#13141F] rounded-[2rem] border border-gray-100 dark:border-[#2F2F3A] hover:border-[#0F82FF50] shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden"
+              className="group relative flex flex-col p-4 bg-white dark:bg-[#13141F] rounded-[1.5rem] border border-gray-100 dark:border-[#2F2F3A] shadow-sm hover:shadow-xl hover:border-[#0F82FF]/30 transition-all duration-300 transform hover:-translate-y-1"
             >
               {/* Profile Bio Section */}
-              <div className="flex items-start gap-4">
-                <div className="relative cursor-pointer" onClick={() => navigate(`/users/${dev._id}`)}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="relative cursor-pointer shrink-0" onClick={() => navigate(`/users/${dev._id}`)}>
+                  <div className="absolute inset-0 bg-[#0F82FF] blur opacity-0 group-hover:opacity-40 transition-opacity rounded-xl"></div>
                   <img
                     src={dev.photoUrl}
                     alt={dev.firstName}
-                    className="w-12 h-12 rounded-2xl object-cover border-2 border-gray-100 dark:border-[#2F2F3A] group-hover:border-[#0F82FF] transition-colors"
+                    className="w-10 h-10 rounded-xl object-cover border-2 border-white dark:border-[#2F2F3A] shadow-md relative z-10"
                   />
                   {dev.isPremium && (
-                    <div className="absolute -top-1 -right-1 bg-yellow-400 p-0.5 rounded-full border border-white">
-                      <ShieldCheck className="w-2.5 h-2.5 text-white fill-white" />
+                    <div className="absolute -top-1.5 -right-1.5 bg-yellow-400 p-0.5 rounded-full border border-white shadow-sm z-20">
+                      <ShieldCheck className="w-2 h-2 text-white fill-white" />
                     </div>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-black text-gray-900 dark:text-white truncate">
-                    {dev.firstName} {dev.lastName}
-                  </p>
-                  <p className="text-[10px] text-gray-500 dark:text-gray-400 line-clamp-1 mt-0.5">
-                    {dev.about || "Tech Enthusiast"}
+                  <div className="flex items-center justify-between">
+                    <p
+                      onClick={() => navigate(`/users/${dev._id}`)}
+                      className="text-sm font-bold text-gray-900 dark:text-white truncate cursor-pointer hover:text-[#0F82FF] transition-colors"
+                    >
+                      {dev.firstName} {dev.lastName}
+                    </p>
+                  </div>
+                  <p className="text-[10px] text-gray-500 dark:text-gray-400 line-clamp-1">
+                    {dev.about || "Building the future."}
                   </p>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="grid grid-cols-2 gap-2 mt-4">
+              <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => toggleFollow.mutate({ toUserId: dev._id, isFollowing: dev.isFollowing })}
                   disabled={toggleFollow.isLoading && loadingUserId === dev._id}
-                  className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[10px] font-bold transition-all ${dev.isFollowing
-                      ? "bg-gray-100 dark:bg-[#2F2F3A] text-gray-600 dark:text-gray-300 hover:bg-red-50 hover:text-red-500"
-                      : "bg-[#0F82FF10] text-[#0F82FF] hover:bg-[#0F82FF] hover:text-white"
+                  className={`flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-bold transition-all border ${dev.isFollowing
+                    ? "bg-transparent border-gray-200 dark:border-[#2F2F3A] text-gray-500 hover:text-red-500 hover:border-red-200"
+                    : "bg-[#0F82FF]/5 border-[#0F82FF]/10 text-[#0F82FF] hover:bg-[#0F82FF] hover:text-white"
                     }`}
                 >
-                  {dev.isFollowing ? <UserMinus className="w-3.5 h-3.5" /> : <UserPlus className="w-3.5 h-3.5" />}
                   {dev.isFollowing ? "Unfollow" : "Follow"}
                 </button>
 
                 <button
                   onClick={() => sendFriendRequest.mutate(dev._id)}
                   disabled={sendFriendRequest.isLoading && loadingUserId === dev._id}
-                  className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gradient-to-r from-[#0F82FF] to-[#0F82FFCC] text-white text-[10px] font-bold shadow-lg shadow-blue-500/10 hover:shadow-blue-500/30 transition-all active:scale-95"
+                  className="flex items-center justify-center gap-1.5 py-2 rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-[10px] font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all active:scale-95"
                 >
-                  <Users className="w-3.5 h-3.5" />
+                  <Users className="w-3 h-3" />
                   Connect
                 </button>
               </div>

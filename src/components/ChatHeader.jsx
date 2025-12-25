@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useSocket } from "../context/SocketContext";
-import { Circle, ChevronLeft, ShieldCheck, MoreVertical, Phone, Video } from "lucide-react";
+import { ChevronLeft, ShieldCheck, MoreVertical, Phone, Video } from "lucide-react";
 import API from "../api";
 import { useNavigate } from "react-router-dom";
 
@@ -48,7 +48,7 @@ const ChatHeader = ({ userId }) => {
         <div className="relative group cursor-pointer" onClick={() => navigate(`/users/${user._id}`)}>
           <div className="absolute inset-0 bg-[#0F82FF] rounded-xl blur-md opacity-0 group-hover:opacity-20 transition-opacity"></div>
           <img
-            src={user.photoUrl}
+            src={user.photoUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${user.firstName}`}
             alt="User"
             className="w-11 h-11 rounded-xl object-cover border-2 border-white dark:border-[#1A1B1F] shadow-lg relative z-10"
           />

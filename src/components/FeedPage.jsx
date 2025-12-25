@@ -6,7 +6,6 @@ import FeedSidebar from './FeedSidebar';
 import useMyProfile from '../hooks/useMyProfile';
 import { useSelector } from 'react-redux';
 import CreatePost from './CreatePost';
-import UserSearchBar from './UserSearchbar';
 
 const FeedPage = () => {
   const navigate = useNavigate();
@@ -40,10 +39,7 @@ const FeedPage = () => {
 
         {/* Main Feed */}
         <main className="w-full lg:w-2/4 space-y-8">
-          {/* Search Bar - Glass Effect */}
-          <div className="rounded-3xl p-6 bg-white dark:bg-[#10131A] bg-opacity-70 dark:bg-opacity-80 backdrop-blur-2xl shadow-xl border border-white/20 dark:border-[#2F2F3A] transition-all duration-300 transform hover:scale-[1.01]">
-            <UserSearchBar />
-          </div>
+
 
           {/* Create Post - Glass Effect */}
           <div className="rounded-3xl p-6 bg-white dark:bg-[#10131A] bg-opacity-70 dark:bg-opacity-80 backdrop-blur-2xl shadow-xl border border-white/20 dark:border-[#2F2F3A] transition-all duration-300 transform hover:scale-[1.01]">

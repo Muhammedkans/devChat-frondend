@@ -24,6 +24,7 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/connection" element={<Connection />} />
             <Route path="/requests" element={<Requests />} />
+            <Route path="/chat" element={<Connection />} />
             <Route path="/chat/:targetUserId" element={<Chat />} />
             <Route path="/premium" element={<Premium />} />
             <Route path="/editProfile" element={<EditProfile />} />
