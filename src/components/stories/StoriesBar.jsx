@@ -11,7 +11,7 @@ const StoriesBar = () => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [storyUrl, setStoryUrl] = useState("");
 
-  // 📡 Fetch Stories
+  
   const { data: storyGroups = [], isLoading } = useQuery({
     queryKey: ["stories-feed"],
     queryFn: async () => {
@@ -20,7 +20,7 @@ const StoriesBar = () => {
     }
   });
 
-  // 📤 Add Story Mutation
+ 
   const { mutate: addStory, isLoading: isUploading } = useMutation({
     mutationFn: async (url) => {
       await API.post("/story/add", { mediaUrl: url, type: 'image' }, { withCredentials: true });
@@ -33,7 +33,7 @@ const StoriesBar = () => {
     }
   });
 
-  // Auto-advance slides logic (Simple implementation)
+  
   useEffect(() => {
     if (selectedStoryIndex !== null) {
       const timer = setTimeout(() => {
@@ -41,16 +41,16 @@ const StoriesBar = () => {
         if (currentSlideIndex < currentGroup.stories.length - 1) {
           setCurrentSlideIndex(prev => prev + 1);
         } else {
-          // Close or Next User
+          
           if (selectedStoryIndex < storyGroups.length - 1) {
             setSelectedStoryIndex(prev => prev + 1);
             setCurrentSlideIndex(0);
           } else {
-            setSelectedStoryIndex(null); // Close
+            setSelectedStoryIndex(null); 
             setCurrentSlideIndex(0);
           }
         }
-      }, 3000); // 3 seconds per story
+      }, 3000); 
       return () => clearTimeout(timer);
     }
   }, [selectedStoryIndex, currentSlideIndex, storyGroups]);
@@ -75,7 +75,7 @@ const StoriesBar = () => {
           <p className="text-[10px] font-bold text-gray-500">Add Story</p>
         </div>
 
-        {/* 🎞️ Story Circles */}
+       
         {storyGroups.map((group, index) => (
           <div key={group.user._id} onClick={() => handleOpenStory(index)} className="flex flex-col items-center gap-2 cursor-pointer min-w-[70px]">
             <div className="p-[3px] rounded-full bg-gradient-to-tr from-[#0F82FF] to-[#B44CFF] hover:scale-105 transition-transform">
