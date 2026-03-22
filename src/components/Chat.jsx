@@ -40,7 +40,7 @@ const Chat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // ✅ Fetch chat history
+  
   useEffect(() => {
     const fetchMessages = async () => {
       try {
@@ -69,7 +69,7 @@ const Chat = () => {
     if (targetUserId) fetchMessages();
   }, [targetUserId]);
 
-  // ✅ Socket Logic
+  
   useEffect(() => {
     if (!socket || !isConnected || !user?._id || !targetUserId) return;
 
@@ -83,7 +83,7 @@ const Chat = () => {
     return () => socket.off('messageReceived', handleReceiveMessage);
   }, [socket, isConnected, user?._id, targetUserId]);
 
-  // 🎤 Recording Logic
+  
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -230,7 +230,7 @@ const Chat = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* 📝 Input Section */}
+      
       <div className="p-4 sm:p-6 bg-white/50 dark:bg-[#10131A]/50 border-t border-gray-100 dark:border-[#2F2F3A] backdrop-blur-3xl">
         {audioBlob ? (
           <div className="flex items-center justify-between bg-[#0F82FF10] p-4 rounded-[1.5rem] border border-[#0F82FF20] animate-in slide-in-from-bottom-4 duration-500">
