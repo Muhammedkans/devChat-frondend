@@ -73,7 +73,7 @@ const CreatePost = () => {
   return (
     <div className={`transition-all duration-300 ${isFocused ? 'scale-[1.01]' : ''}`}>
       <div className="flex gap-4">
-        {/* 👤 User Avatar */}
+       
         <div className="flex-shrink-0">
           <div className="relative group cursor-pointer">
             <div className="absolute inset-0 bg-gradient-to-tr from-[#0F82FF] to-[#B44CFF] rounded-2xl blur-md opacity-0 group-hover:opacity-40 transition-opacity duration-500"></div>
@@ -98,7 +98,7 @@ const CreatePost = () => {
               className="w-full bg-transparent border-none outline-none text-lg text-gray-800 dark:text-gray-100 placeholder-gray-400 font-medium resize-none transition-all duration-300 py-2 scrollbar-hide"
             />
 
-            {/* 🖼️ Image Preview */}
+         
             {preview && (
               <div className="relative mt-4 mb-2 group rounded-3xl overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300">
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10" />
@@ -113,7 +113,6 @@ const CreatePost = () => {
             )}
           </div>
 
-          {/* 🛠️ Action Bar */}
           <div className="flex items-center justify-between pt-4 mt-2 border-t border-gray-100 dark:border-[#2F2F3A]/50">
             <div className="flex items-center gap-1">
               <input

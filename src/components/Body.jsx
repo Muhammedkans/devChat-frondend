@@ -30,7 +30,7 @@ const Body = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F8F9FF] dark:bg-[#0D0C1D] text-gray-900 dark:text-gray-100 transition-colors duration-700 selection:bg-[#0F82FF30]">
-      {/* 🔮 Background Atmospheric Effects */}
+      
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#0F82FF08] dark:bg-[#0F82FF15] rounded-full blur-[120px] animate-pulse transition-all duration-[5000ms]"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#B44CFF08] dark:bg-[#B44CFF15] rounded-full blur-[120px] animate-pulse transition-all duration-[6000ms] delay-1000"></div>

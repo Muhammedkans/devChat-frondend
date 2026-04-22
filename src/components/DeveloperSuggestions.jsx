@@ -28,7 +28,7 @@ const DeveloperSuggestions = () => {
       setLoadingUserId(toUserId);
       await API.post(`/request/send/interested/${toUserId}`);
 
-      // 🤝 Emit Real-time Socket Event
+     
       if (socket) {
         socket.emit("sendConnectionRequest", {
           toUserId,

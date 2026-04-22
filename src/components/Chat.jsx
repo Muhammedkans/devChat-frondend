@@ -166,7 +166,7 @@ const Chat = () => {
   return (
     <div className="h-[calc(100vh-6rem)] flex flex-col bg-white/70 dark:bg-[#10131A]/80 backdrop-blur-3xl border border-white/20 dark:border-[#2F2F3A] rounded-2xl md:rounded-[2.5rem] shadow-2xl overflow-hidden transition-all duration-700 m-2 sm:m-4 md:m-6">
 
-      {/* 🔝 Chat Header */}
+   
       <ChatHeader userId={targetUserId} />
 
       {/* 💬 Chat Body */}

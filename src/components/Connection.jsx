@@ -32,7 +32,7 @@ const Connections = () => {
 
   return (
     <div className="min-h-screen px-4 py-8 max-w-7xl mx-auto">
-      {/* 🏷️ Header Section */}
+     
       <div className="mb-10 text-center sm:text-left">
         <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#0F82FF] to-[#B44CFF] mb-2">
           Your Network
@@ -101,7 +101,7 @@ const Connections = () => {
                   </div>
                 </div>
 
-                {/* ⚡ Actions */}
+              
                 <div className="flex items-center gap-3 pt-4 border-t border-gray-100 dark:border-[#2F2F3A]">
                   <Link
                     to={`/chat/${_id}`}

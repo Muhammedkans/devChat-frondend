@@ -36,7 +36,7 @@ const ChatHeader = ({ userId }) => {
   return (
     <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-[#2F2F3A] bg-white/70 dark:bg-[#10131A]/80 backdrop-blur-3xl sticky top-0 z-10 transition-all duration-500">
       <div className="flex items-center gap-4">
-        {/* ⬅️ Back Button */}
+       
         <button
           onClick={() => navigate('/')}
           className="p-2 -ml-2 rounded-xl hover:bg-gray-100 dark:hover:bg-[#1A1B1F] text-gray-400 hover:text-[#0F82FF] transition-all"
@@ -44,7 +44,7 @@ const ChatHeader = ({ userId }) => {
           <ChevronLeft className="w-6 h-6" />
         </button>
 
-        {/* 👤 Profile Image */}
+        
         <div className="relative group cursor-pointer" onClick={() => navigate(`/users/${user._id}`)}>
           <div className="absolute inset-0 bg-[#0F82FF] rounded-xl blur-md opacity-0 group-hover:opacity-20 transition-opacity"></div>
           <img
@@ -57,7 +57,7 @@ const ChatHeader = ({ userId }) => {
           )}
         </div>
 
-        {/* 👤 Identity Section */}
+      
         <div className="leading-tight">
           <div className="flex items-center gap-1.5">
             <h2 className="text-sm font-black text-gray-900 dark:text-white group-hover:text-[#0F82FF] transition-colors">
@@ -71,7 +71,7 @@ const ChatHeader = ({ userId }) => {
         </div>
       </div>
 
-      {/* 📞 Actions */}
+     
       <div className="flex items-center gap-1 sm:gap-2">
         <button className="p-3 text-gray-400 hover:text-[#0F82FF] hover:bg-[#0F82FF10] rounded-2xl transition-all"><Phone className="w-4 h-4" /></button>
         <button className="p-3 text-gray-400 hover:text-[#0F82FF] hover:bg-[#0F82FF10] rounded-2xl transition-all hidden sm:block"><Video className="w-4 h-4" /></button>
