@@ -12,6 +12,8 @@ const UserSearchBar = () => {
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef(null);
 
+
+  
   const { data: myProfile } = useMyProfile();
 
   // Close dropdown when clicking outside

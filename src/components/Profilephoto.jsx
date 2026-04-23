@@ -61,6 +61,9 @@ const Profilephoto = () => {
         className="hidden"
       />
 
+
+
+
          {/* ✅ Blue tick (show only if user.isPremium === true) */}
       {user?.isPremium && (
         <MdVerified

@@ -1,6 +1,9 @@
 import React from 'react';
 import { Github, Twitter, Linkedin, Heart } from 'lucide-react';
 
+
+
+
 const Footer = () => {
   return (
     <footer className="w-full bg-white/70 dark:bg-[#10131A]/80 backdrop-blur-2xl border-t border-gray-100 dark:border-[#2F2F3A] py-8 mt-auto z-50">

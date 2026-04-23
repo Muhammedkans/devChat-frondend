@@ -8,6 +8,10 @@ import { getProfileAnalytics } from '../api/analyticsApi';
 import { Eye, Edit3, Settings, Grid, Heart, MessageSquare, Star, Crown } from 'lucide-react';
 import PortfolioGrid from './portfolio/PortfolioGrid';
 
+
+
+
+
 const ProfilePage = () => {
   const navigate = useNavigate();
   const { data: user, isLoading, error } = useMyProfile();

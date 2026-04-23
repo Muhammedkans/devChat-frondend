@@ -19,6 +19,9 @@ import { followUser, unfollowUser } from "../api/followApi";
 import toast from "react-hot-toast";
 import PortfolioGrid from "./portfolio/PortfolioGrid";
 
+
+
+
 const UserProfile = () => {
   const { userId } = useParams();
   const navigate = useNavigate();

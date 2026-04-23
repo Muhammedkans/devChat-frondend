@@ -22,6 +22,9 @@ import {
 import { useTheme } from "../context/ThemeContext";
 import NotificationDropdown from "./NotificationDropdown";
 
+
+
+
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
