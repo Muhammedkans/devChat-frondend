@@ -25,6 +25,8 @@ export const SocketProvider = ({ children }) => {
         reconnectionDelay: 300, // ✅ Reduced delay for faster reconnection
       });
 
+
+      
       socketRef.current = newSocket;
       setSocket(newSocket);
 
