@@ -17,7 +17,6 @@ const ProfilePage = () => {
   const { data: user, isLoading, error } = useMyProfile();
   const { data: posts = [], isLoading: loadingPosts } = useMyPosts();
 
-  // 📈 Fetch Analytics
   const { data: analytics } = useQuery({
     queryKey: ['profile-analytics'],
     queryFn: getProfileAnalytics,
@@ -37,10 +36,10 @@ const ProfilePage = () => {
 
       <div className="flex flex-col lg:flex-row gap-8 items-start">
 
-        {/* 🚀 Sidebar: Profile Info Card */}
+        
         <div className="w-full lg:w-1/3 flex flex-col gap-6">
           <div className="relative overflow-hidden rounded-[2.5rem] bg-white dark:bg-[#10131A] bg-opacity-70 dark:bg-opacity-80 backdrop-blur-2xl shadow-xl border border-white/20 dark:border-[#2F2F3A] p-10 transition-all duration-500">
-            {/* Background Glow */}
+           
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#0F82FF15] rounded-full blur-3xl"></div>
 
             <div className="flex flex-col items-center">
@@ -55,7 +54,7 @@ const ProfilePage = () => {
                   {user?.isPremium ? 'Premium Member' : 'Standard Member'}
                 </div>
 
-                {/* Career Status Badge */}
+               
                 {user?.careerStatus && user.careerStatus !== 'Just Exploring' && (
                   <div className={`mt-2 block w-fit mx-auto items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${user.careerStatus === 'Open to Work' ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 border-green-200 dark:border-green-800' :
                       user.careerStatus === 'Hiring' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-800' :
