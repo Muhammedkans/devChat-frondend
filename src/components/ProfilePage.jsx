@@ -72,7 +72,7 @@ const ProfilePage = () => {
               <div className="grid grid-cols-3 gap-4 w-full mt-8 pt-8 border-t border-gray-100 dark:border-[#2F2F3A]">
                 <div className="text-center">
                   <p className="text-xl font-black text-gray-900 dark:text-white">{user?.postsCount}</p>
-                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Posts</p>
+                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Postss</p>
                 </div>
                 <div className="text-center">
                   <p className="text-xl font-black text-gray-900 dark:text-white">{user?.followersCount}</p>

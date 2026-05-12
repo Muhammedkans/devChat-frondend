@@ -62,7 +62,7 @@ const Requests = () => {
             <Inbox className="w-10 h-10 text-purple-500" />
           </div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">No Pending Invitations</h2>
-          <p className="text-gray-500 max-w-md mb-8">You're all caught up! Explore the feed to find more people to connect with.</p>
+          <p className="text-gray-500 max-w-md mb-8">You're all caught up! Explore the feed to find more people to connect with....</p>
           <Link to="/" className="px-8 py-3 bg-[#0F82FF] text-white rounded-2xl font-black uppercase tracking-widest shadow-lg hover:scale-105 transition-all">
             Browse Community
           </Link>
