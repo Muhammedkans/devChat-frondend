@@ -37,6 +37,8 @@ const UserProfile = () => {
   } = useUserPosts(userId);
 
   
+
+  
   useEffect(() => {
     if (userId) {
       recordProfileView(userId).catch(err => console.error("View track error:", err));

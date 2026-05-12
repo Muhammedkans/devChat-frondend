@@ -86,6 +86,7 @@ const UserSearchBar = () => {
                       className="flex items-center gap-3 px-4 py-3 hover:bg-[#0F82FF]/10 transition-colors group"
                       onClick={() => setShowResults(false)}
                     >
+                      
                       <img
                         src={user.photoUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${user.firstName}`}
                         alt={user.firstName}
