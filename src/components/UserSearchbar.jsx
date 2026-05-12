@@ -16,7 +16,7 @@ const UserSearchBar = () => {
   
   const { data: myProfile } = useMyProfile();
 
-  // Close dropdown when clicking outside
+ 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
@@ -72,7 +72,7 @@ const UserSearchBar = () => {
         />
       </div>
 
-      {/* 📋 Results Dropdown */}
+     
       {showResults && (
         <div className="absolute left-0 mt-2 w-full bg-white dark:bg-[#15171E] rounded-2xl shadow-2xl border border-gray-100 dark:border-[#2F2F3A] overflow-hidden z-[100] animate-in fade-in slide-in-from-top-2 duration-200">
           {results.length > 0 ? (
@@ -109,7 +109,7 @@ const UserSearchBar = () => {
               {loading ? (
                 <p className="text-xs font-bold animate-pulse">Searching the network...</p>
               ) : (
-                <p className="text-xs">No developers found.</p>
+                <p className="text-xs">No Developers found</p>
               )}
             </div>
           )}
